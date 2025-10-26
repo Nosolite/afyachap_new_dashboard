@@ -265,6 +265,16 @@ export const getTransactionDetailsUrl = `${webUrl}/api/v1/get/user/transaction/d
 export const updateTransactionUrl = `${webUrl}/api/v1/get/synch/payment/`;
 export const revenueSummaryUrl = `${webUrl}/api/v1/get/getRevenueSummary?`;
 
+/*Admin Subscription Management (Manual Assign) */
+export const adminSubscriptionBaseUrl = `${webUrl}/api/v1/admin/subscription`;
+export const adminSubscriptionSearchUsersUrl = `${adminSubscriptionBaseUrl}/search-users`;
+export const adminSubscriptionUserDetailsUrl = `${adminSubscriptionBaseUrl}/user/`; // append {userId}/details
+export const adminSubscriptionPackagesUrl = `${adminSubscriptionBaseUrl}/packages`;
+export const adminSubscriptionAssignUrl = `${adminSubscriptionBaseUrl}/assign`;
+export const adminSubscriptionUserHistoryUrl = `${adminSubscriptionBaseUrl}/user/`; // append {userId}/history
+export const adminSubscriptionCancelUrl = `${adminSubscriptionBaseUrl}/cancel`;
+export const adminSubscriptionProceedWithSelectedUserUrl = `${adminSubscriptionBaseUrl}/proceed-with-selected-user`;
+
 /*Campaigns */
 export const campaignUrl = `${webUrl}/api/v1/campaigns`;
 export const campaignPackageUrl = `${webUrl}/api/v1/challenge-packages`;

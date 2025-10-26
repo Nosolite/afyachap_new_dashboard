@@ -51,207 +51,420 @@ import Campaigns from "../pages/Campaigns/Campaigns";
 import ExpireTomorrow from "../pages/ExpireTomorrow/ExpireTomorrow";
 import PaymentAnalytics from "../pages/Payments/PaymentAnalytics";
 import AdsTracking from "../pages/AdsTracking/AdsTracking";
+import ManualSubscriptions from "../pages/Payments/ManualSubscriptions";
 
 export const router = createBrowserRouter([
-    {
-        path: "/",
-        element: <Layout><Home /></Layout>,
-        errorElement: <Layout><Home /></Layout>,
-    },
-    {
-        path: "contents/contents",
-        element: <Layout><Contents /></Layout>,
-    },
-    {
-        path: "contents/categories",
-        element: <Layout><ContentCategories /></Layout>,
-    },
-    {
-        path: "contents/authors",
-        element: <Layout><Authors /></Layout>,
-    },
-    {
-        path: "contents/reports",
-        element: <Layout><ContentReports /></Layout>,
-    },
-    {
-        path: "doctors/doctors",
-        element: <Layout><Doctors /></Layout>,
-    },
-    {
-        path: "doctors/applications",
-        element: <Layout><DoctorApplications /></Layout>,
-    },
-    {
-        path: "doctors/specializations",
-        element: <Layout><Specializations /></Layout>,
-    },
-    {
-        path: "doctors/reports",
-        element: <Layout><DoctorReports /></Layout>,
-    },
-    {
-        path: "users/users",
-        element: <Layout><Users /></Layout>,
-    },
-    {
-        path: "users/content-subscribers",
-        element: <Layout><ContentSubscribers /></Layout>,
-    },
-    {
-        path: "ads/tracking",
-        element: <Layout><AdsTracking /></Layout>,
-    },
-    {
-        path: "users/vendors",
-        element: <Layout><Vendors /></Layout>,
-    },
-    {
-        path: "users/drivers",
-        element: <Layout><Drivers /></Layout>,
-    },
-    {
-        path: "users/secretaries",
-        element: <Layout><Secreteries /></Layout>,
-    },
-    {
-        path: "users/administrators",
-        element: <Layout><Administrators /></Layout>,
-    },
-    {
-        path: "users/reports",
-        element: <Layout><UserReports /></Layout>,
-    },
-    {
-        path: "medical/consultations",
-        element: <Layout><Consultation /></Layout>,
-    },
-    {
-        path: "medical/chat-sessions-appeals",
-        element: <Layout><ChatSessionsAppeals /></Layout>,
-    },
-    {
-        path: "medical/lab-investigations",
-        element: <Layout><LabInvestigations /></Layout>,
-    },
-    {
-        path: "medical/medicine-prescription",
-        element: <Layout><MedicinePrescription /></Layout>,
-    },
-    {
-        path: "medical/medical-reports",
-        element: <Layout><MedicalReports /></Layout>,
-    },
-    {
-        path: "medical/diseases",
-        element: <Layout><Diseases /></Layout>,
-    },
-    {
-        path: "medical/medical-tests",
-        element: <Layout><MedicalTests /></Layout>,
-    },
-    {
-        path: "medical/medicines",
-        element: <Layout><Medicines /></Layout>,
-    },
-    {
-        path: "medical/medicine-frequency",
-        element: <Layout><MedicalSchedules /></Layout>,
-    },
-    {
-        path: "medical/medical-routes",
-        element: <Layout><MedicalRoutes /></Layout>,
-    },
-    {
-        path: "medical/period-cycle",
-        element: <Layout><PeriodCycle /></Layout>,
-    },
-    {
-        path: "medical/reports",
-        element: <Layout><ConsultationReports /></Layout>,
-    },
-    {
-        path: "shops/orders",
-        element: <Layout><Orders /></Layout>,
-    },
-    {
-        path: "shops/products",
-        element: <Layout><Products /></Layout>,
-    },
-    {
-        path: "shops/product-categories",
-        element: <Layout><ProductCategories /></Layout>,
-    },
-    {
-        path: "shops/products-categories-banners",
-        element: <Layout><ProductCategoriesBanners /></Layout>,
-    },
-    {
-        path: "shops/products-contents-banners",
-        element: <Layout><ProductContentsBanners /></Layout>,
-    },
-    {
-        path: "shops/regions",
-        element: <Layout><Regions /></Layout>,
-    },
-    {
-        path: "shops/reports",
-        element: <Layout><ShopsReport /></Layout>,
-    },
-    {
-        path: "dating/tribes",
-        element: <Layout><Tribes /></Layout>,
-    },
-    {
-        path: "dating/interests",
-        element: <Layout><Interests /></Layout>,
-    },
-    {
-        path: "dating/users",
-        element: <Layout><DatingUsers /></Layout>,
-    },
-    {
-        path: "dating/users/chats",
-        element: <Layout><DatingUsersChats /></Layout>,
-    },
-    {
-        path: "payments/subscriptions",
-        element: <Layout><Payments /></Layout>,
-    },
-    {
-        path: "payments/accounts-expires-tomorrow",
-        element: <Layout><ExpireTomorrow /></Layout>,
-    },
-    {
-        path: "payments/subscriptions-types",
-        element: <Layout><SubscriptionTypes /></Layout>,
-    },
-    {
-        path: "payments/campaigns",
-        element: <Layout><Campaigns /></Layout>,
-    },
-    {
-        path: "payments/analytics",
-        element: <Layout><PaymentAnalytics /></Layout>,
-    },
-    {
-        path: "payments/reports",
-        element: <Layout><PaymentReports /></Layout>,
-    },
-    {
-        path: "settings/general",
-        element: <Layout><Settings /></Layout>,
-    },
-    {
-        path: "settings/services",
-        element: <Layout><ServicesProvided /></Layout>,
-    },
-    {
-        path: "settings/order-status",
-        element: <Layout><OrderStatus /></Layout>,
-    },
-    {
-        path: "login",
-        element: <AuthLayout><Login /></AuthLayout>,
-    },
+  {
+    path: "/",
+    element: (
+      <Layout>
+        <Home />
+      </Layout>
+    ),
+    errorElement: (
+      <Layout>
+        <Home />
+      </Layout>
+    ),
+  },
+  {
+    path: "contents/contents",
+    element: (
+      <Layout>
+        <Contents />
+      </Layout>
+    ),
+  },
+  {
+    path: "contents/categories",
+    element: (
+      <Layout>
+        <ContentCategories />
+      </Layout>
+    ),
+  },
+  {
+    path: "contents/authors",
+    element: (
+      <Layout>
+        <Authors />
+      </Layout>
+    ),
+  },
+  {
+    path: "contents/reports",
+    element: (
+      <Layout>
+        <ContentReports />
+      </Layout>
+    ),
+  },
+  {
+    path: "doctors/doctors",
+    element: (
+      <Layout>
+        <Doctors />
+      </Layout>
+    ),
+  },
+  {
+    path: "doctors/applications",
+    element: (
+      <Layout>
+        <DoctorApplications />
+      </Layout>
+    ),
+  },
+  {
+    path: "doctors/specializations",
+    element: (
+      <Layout>
+        <Specializations />
+      </Layout>
+    ),
+  },
+  {
+    path: "doctors/reports",
+    element: (
+      <Layout>
+        <DoctorReports />
+      </Layout>
+    ),
+  },
+  {
+    path: "users/users",
+    element: (
+      <Layout>
+        <Users />
+      </Layout>
+    ),
+  },
+  {
+    path: "users/content-subscribers",
+    element: (
+      <Layout>
+        <ContentSubscribers />
+      </Layout>
+    ),
+  },
+  {
+    path: "ads/tracking",
+    element: (
+      <Layout>
+        <AdsTracking />
+      </Layout>
+    ),
+  },
+  {
+    path: "users/vendors",
+    element: (
+      <Layout>
+        <Vendors />
+      </Layout>
+    ),
+  },
+  {
+    path: "users/drivers",
+    element: (
+      <Layout>
+        <Drivers />
+      </Layout>
+    ),
+  },
+  {
+    path: "users/secretaries",
+    element: (
+      <Layout>
+        <Secreteries />
+      </Layout>
+    ),
+  },
+  {
+    path: "users/administrators",
+    element: (
+      <Layout>
+        <Administrators />
+      </Layout>
+    ),
+  },
+  {
+    path: "users/reports",
+    element: (
+      <Layout>
+        <UserReports />
+      </Layout>
+    ),
+  },
+  {
+    path: "medical/consultations",
+    element: (
+      <Layout>
+        <Consultation />
+      </Layout>
+    ),
+  },
+  {
+    path: "medical/chat-sessions-appeals",
+    element: (
+      <Layout>
+        <ChatSessionsAppeals />
+      </Layout>
+    ),
+  },
+  {
+    path: "medical/lab-investigations",
+    element: (
+      <Layout>
+        <LabInvestigations />
+      </Layout>
+    ),
+  },
+  {
+    path: "medical/medicine-prescription",
+    element: (
+      <Layout>
+        <MedicinePrescription />
+      </Layout>
+    ),
+  },
+  {
+    path: "medical/medical-reports",
+    element: (
+      <Layout>
+        <MedicalReports />
+      </Layout>
+    ),
+  },
+  {
+    path: "medical/diseases",
+    element: (
+      <Layout>
+        <Diseases />
+      </Layout>
+    ),
+  },
+  {
+    path: "medical/medical-tests",
+    element: (
+      <Layout>
+        <MedicalTests />
+      </Layout>
+    ),
+  },
+  {
+    path: "medical/medicines",
+    element: (
+      <Layout>
+        <Medicines />
+      </Layout>
+    ),
+  },
+  {
+    path: "medical/medicine-frequency",
+    element: (
+      <Layout>
+        <MedicalSchedules />
+      </Layout>
+    ),
+  },
+  {
+    path: "medical/medical-routes",
+    element: (
+      <Layout>
+        <MedicalRoutes />
+      </Layout>
+    ),
+  },
+  {
+    path: "medical/period-cycle",
+    element: (
+      <Layout>
+        <PeriodCycle />
+      </Layout>
+    ),
+  },
+  {
+    path: "medical/reports",
+    element: (
+      <Layout>
+        <ConsultationReports />
+      </Layout>
+    ),
+  },
+  {
+    path: "shops/orders",
+    element: (
+      <Layout>
+        <Orders />
+      </Layout>
+    ),
+  },
+  {
+    path: "shops/products",
+    element: (
+      <Layout>
+        <Products />
+      </Layout>
+    ),
+  },
+  {
+    path: "shops/product-categories",
+    element: (
+      <Layout>
+        <ProductCategories />
+      </Layout>
+    ),
+  },
+  {
+    path: "shops/products-categories-banners",
+    element: (
+      <Layout>
+        <ProductCategoriesBanners />
+      </Layout>
+    ),
+  },
+  {
+    path: "shops/products-contents-banners",
+    element: (
+      <Layout>
+        <ProductContentsBanners />
+      </Layout>
+    ),
+  },
+  {
+    path: "shops/regions",
+    element: (
+      <Layout>
+        <Regions />
+      </Layout>
+    ),
+  },
+  {
+    path: "shops/reports",
+    element: (
+      <Layout>
+        <ShopsReport />
+      </Layout>
+    ),
+  },
+  {
+    path: "dating/tribes",
+    element: (
+      <Layout>
+        <Tribes />
+      </Layout>
+    ),
+  },
+  {
+    path: "dating/interests",
+    element: (
+      <Layout>
+        <Interests />
+      </Layout>
+    ),
+  },
+  {
+    path: "dating/users",
+    element: (
+      <Layout>
+        <DatingUsers />
+      </Layout>
+    ),
+  },
+  {
+    path: "dating/users/chats",
+    element: (
+      <Layout>
+        <DatingUsersChats />
+      </Layout>
+    ),
+  },
+  {
+    path: "payments/subscriptions",
+    element: (
+      <Layout>
+        <Payments />
+      </Layout>
+    ),
+  },
+  {
+    path: "payments/manual-subscriptions",
+    element: (
+      <Layout>
+        <ManualSubscriptions />
+      </Layout>
+    ),
+  },
+  {
+    path: "payments/accounts-expires-tomorrow",
+    element: (
+      <Layout>
+        <ExpireTomorrow />
+      </Layout>
+    ),
+  },
+  {
+    path: "payments/subscriptions-types",
+    element: (
+      <Layout>
+        <SubscriptionTypes />
+      </Layout>
+    ),
+  },
+  {
+    path: "payments/campaigns",
+    element: (
+      <Layout>
+        <Campaigns />
+      </Layout>
+    ),
+  },
+  {
+    path: "payments/analytics",
+    element: (
+      <Layout>
+        <PaymentAnalytics />
+      </Layout>
+    ),
+  },
+  {
+    path: "payments/reports",
+    element: (
+      <Layout>
+        <PaymentReports />
+      </Layout>
+    ),
+  },
+  {
+    path: "settings/general",
+    element: (
+      <Layout>
+        <Settings />
+      </Layout>
+    ),
+  },
+  {
+    path: "settings/services",
+    element: (
+      <Layout>
+        <ServicesProvided />
+      </Layout>
+    ),
+  },
+  {
+    path: "settings/order-status",
+    element: (
+      <Layout>
+        <OrderStatus />
+      </Layout>
+    ),
+  },
+  {
+    path: "login",
+    element: (
+      <AuthLayout>
+        <Login />
+      </AuthLayout>
+    ),
+  },
 ]);
