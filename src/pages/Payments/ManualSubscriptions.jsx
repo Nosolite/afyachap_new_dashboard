@@ -42,16 +42,12 @@ import ArrowPathIcon from "@heroicons/react/24/outline/ArrowPathIcon";
 import CircleStackIcon from "@heroicons/react/24/outline/CircleStackIcon";
 import CheckIcon from "@heroicons/react/24/outline/CheckIcon";
 import XMarkIcon from "@heroicons/react/24/outline/XMarkIcon";
-import MagnifyingGlassIcon from "@heroicons/react/24/outline/MagnifyingGlassIcon";
 import PlusIcon from "@heroicons/react/24/outline/PlusIcon";
 import ExclamationTriangleIcon from "@heroicons/react/24/outline/ExclamationTriangleIcon";
 import XCircleIcon from "@heroicons/react/24/outline/XCircleIcon";
 import CalendarIcon from "@heroicons/react/24/outline/CalendarIcon";
 import CurrencyDollarIcon from "@heroicons/react/24/outline/CurrencyDollarIcon";
 import { CustomSearch } from "../../components/custom-search";
-import { usePopover } from "../../hooks/use-popover";
-import { CustomPopOver } from "../../components/custom-popover";
-import dayjs from "dayjs";
 import {
   adminSubscriptionAssignUrl,
   adminSubscriptionCancelUrl,
@@ -114,9 +110,7 @@ function ManualSubscriptions() {
   const [userOptions, setUserOptions] = React.useState([]);
   const [userSearchPage, setUserSearchPage] = React.useState(1);
   const [userSearchTotalPages, setUserSearchTotalPages] = React.useState(1);
-  const [userDropdownOpen, setUserDropdownOpen] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState(0);
-  const [searchTerm, setSearchTerm] = React.useState("");
   const USER_SEARCH_LIMIT = 10;
 
   const fetchUsers = React.useCallback((query, page = 1) => {
@@ -145,14 +139,12 @@ function ManualSubscriptions() {
           return merged;
         });
         setLoadingUsers(false);
-        setUserDropdownOpen(true);
       },
       () => {
         if (page === 1) {
           setUserOptions([]);
         }
         setLoadingUsers(false);
-        setUserDropdownOpen(true);
       }
     );
   }, []);
@@ -255,10 +247,6 @@ function ManualSubscriptions() {
   // Package helpers
   // With category id 2, response already returns only App subscriptions
   const isAppSubscription = () => true;
-  const [timeFilterValue, setTimeFilterValue] = React.useState({
-    label: "Today",
-    value: "today",
-  });
 
   const getPackageDuration = (pkg) => {
     // Try common keys; backend may supply any of these
@@ -454,11 +442,6 @@ function ManualSubscriptions() {
       }
     );
   };
-  const popOver = usePopover();
-  const [body, setBody] = React.useState({
-    from: dayjs().startOf("day"),
-    to: dayjs().add(1, "day"),
-  });
 
   const cancelSubscription = () => {
     if (!selectedUser?.id) {
@@ -485,112 +468,6 @@ function ManualSubscriptions() {
       "error"
     );
   };
-  const timeFilterPopoverItems = [
-    {
-      id: "today",
-      label: "Today",
-      icon: (
-        <SvgIcon fontSize="small" sx={{ color: "primary.main" }}>
-          <CalendarIcon />
-        </SvgIcon>
-      ),
-      onClick: () => {
-        setTimeFilterValue({ label: "Today", value: "today" });
-      },
-    },
-    {
-      id: "yesterday",
-      label: "yesterday",
-      icon: (
-        <SvgIcon fontSize="small" sx={{ color: "primary.main" }}>
-          <CalendarIcon />
-        </SvgIcon>
-      ),
-      onClick: () => {
-        setTimeFilterValue({ label: "Yesterday", value: "yesterday" });
-      },
-    },
-    {
-      id: "1_week",
-      label: "Last 7 Days",
-      icon: (
-        <SvgIcon fontSize="small" sx={{ color: "primary.main" }}>
-          <CalendarIcon />
-        </SvgIcon>
-      ),
-      onClick: () => {
-        setTimeFilterValue({ label: "Last 7 Days", value: "1_week" });
-      },
-    },
-    {
-      id: "1_month",
-      label: "Last Month",
-      icon: (
-        <SvgIcon fontSize="small" sx={{ color: "primary.main" }}>
-          <CalendarIcon />
-        </SvgIcon>
-      ),
-      onClick: () => {
-        setTimeFilterValue({ label: "Last Month", value: "1_month" });
-      },
-    },
-    {
-      id: "6_months",
-      label: "Last 6 Months",
-      icon: (
-        <SvgIcon fontSize="small" sx={{ color: "primary.main" }}>
-          <CalendarIcon />
-        </SvgIcon>
-      ),
-      onClick: () => {
-        setTimeFilterValue({ label: "Last 6 Months", value: "6_months" });
-      },
-    },
-    {
-      id: "1_year",
-      label: "Last 12 Months",
-      icon: (
-        <SvgIcon fontSize="small" sx={{ color: "primary.main" }}>
-          <CalendarIcon />
-        </SvgIcon>
-      ),
-      onClick: (event) => {
-        setTimeFilterValue({ label: "Last 12 Months", value: "1_year" });
-      },
-    },
-    {
-      id: "custom",
-      label: "Custom Date",
-      icon: (
-        <SvgIcon fontSize="small" sx={{ color: "primary.main" }}>
-          <CalendarIcon />
-        </SvgIcon>
-      ),
-      onClick: (event) => {
-        setTimeFilterValue({
-          label:
-            "from" +
-            body.from.format("YYYY-MM-DD") +
-            ",To" +
-            body.from.format("YYYY-MM-DD"),
-          value: "custom",
-        });
-        popOver.handleOpen(event);
-      },
-    },
-    {
-      id: "ALL_DATE",
-      label: "ALL",
-      icon: (
-        <SvgIcon fontSize="small" sx={{ color: "primary.main" }}>
-          <CalendarIcon />
-        </SvgIcon>
-      ),
-      onClick: () => {
-        setTimeFilterValue({ label: "All", value: "all" });
-      },
-    },
-  ];
   const performCancelSubscription = () => {
     setLoadingCancel(true);
     webPostRequest(
@@ -639,9 +516,6 @@ function ManualSubscriptions() {
         : [],
     [packages?.sub_services]
   );
-  const handleSearch = (event) => {
-    setSearchTerm(event.target.value);
-  };
   return (
     <Box
       component="main"
