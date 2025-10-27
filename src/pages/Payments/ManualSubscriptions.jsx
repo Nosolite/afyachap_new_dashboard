@@ -36,6 +36,7 @@ import {
   InputAdornment,
   Skeleton,
   CircularProgress,
+  TablePagination,
 } from "@mui/material";
 import UserIcon from "@heroicons/react/24/outline/UserIcon";
 import ArrowPathIcon from "@heroicons/react/24/outline/ArrowPathIcon";
@@ -54,8 +55,11 @@ import {
   adminSubscriptionUserDetailsUrl,
   adminSubscriptionUserHistoryUrl,
   adminSubscriptionProceedWithSelectedUserUrl,
+  adminSubscriptionPackagesUrl,
+  adminSubscriptionAdminAssignedUrl,
+  adminSubscriptionRevenueUrl,
   getAllUsersUrl,
-  getAllPackagesByCategoryUrl,
+  getUserTransactionDetailsUrl,
 } from "../../seed/url";
 import { CustomAlert } from "../../components/custom-alert";
 import { formatMoney } from "../../utils/constant";
@@ -64,8 +68,11 @@ import {
   webPostRequest,
   authPostRequest,
 } from "../../services/api-service";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function ManualSubscriptions() {
+  const location = useLocation();
+  const navigate = useNavigate();
   // Core state
   const [users, setUsers] = React.useState([]);
   const [selectedUser, setSelectedUser] = React.useState(null);
@@ -111,7 +118,21 @@ function ManualSubscriptions() {
   const [userSearchPage, setUserSearchPage] = React.useState(1);
   const [userSearchTotalPages, setUserSearchTotalPages] = React.useState(1);
   const [activeTab, setActiveTab] = React.useState(0);
+  const [adminSubscriptions, setAdminSubscriptions] = React.useState([]);
+  const [revenueData, setRevenueData] = React.useState(null);
   const USER_SEARCH_LIMIT = 10;
+
+  // History pagination state
+  const [historyPage, setHistoryPage] = React.useState(1);
+  const [historyLimit, setHistoryLimit] = React.useState(10);
+  const [historyPagination, setHistoryPagination] = React.useState({
+    current_page: 1,
+    last_page: 1,
+    per_page: 10,
+    total: 0,
+    from: 0,
+    to: 0,
+  });
 
   const fetchUsers = React.useCallback((query, page = 1) => {
     setLoadingUsers(true);
@@ -244,9 +265,145 @@ function ManualSubscriptions() {
     return new Date(subscription.subscription_end_at) > new Date();
   };
 
-  // Package helpers
-  // With category id 2, response already returns only App subscriptions
-  const isAppSubscription = () => true;
+  const getSubscriptionStatusInfo = (account, subscription) => {
+    if (!account)
+      return {
+        type: "Unknown",
+        status: "Unknown",
+        color: "default",
+        isExpired: false,
+      };
+
+    const now = new Date();
+    const validUntil = new Date(account.valid_to);
+    const isExpired = validUntil < now;
+
+    let type, status, color;
+
+    if (account.user_account_type === "PREMIUM") {
+      type = "Premium Subscription";
+      color = isExpired ? "error" : "success";
+      status = isExpired ? "Expired" : "Active";
+    } else if (account.user_account_type === "FREE") {
+      type = "Free Account";
+      color = "info";
+      status = "Active";
+    } else if (account.user_account_type === "TRIAL") {
+      type = "Trial Account";
+      color = "warning";
+      status = isExpired ? "Expired" : "Active";
+    } else {
+      type = `${account.user_account_type} Account`;
+      color = "default";
+      status = account.status || "Unknown";
+    }
+
+    return { type, status, color, isExpired, validUntil: account.valid_to };
+  };
+
+  const getPackageNameFromServiceId = (serviceId) => {
+    if (!serviceId || !packages) return `Service ID: ${serviceId}`;
+
+    const businessService = packages.business_services?.find(
+      (s) => s.id === serviceId
+    );
+    const subService = packages.sub_services?.find((s) => s.id === serviceId);
+
+    if (businessService) return businessService.name;
+    if (subService) return subService.name;
+    return `Service ID: ${serviceId}`;
+  };
+
+  const getUserTransactionDetails = React.useCallback((orderId) => {
+    // Validate order ID before making request
+    if (
+      !orderId ||
+      orderId === "undefined" ||
+      orderId === "null" ||
+      orderId === ""
+    ) {
+      console.error("Invalid order ID:", orderId);
+      return Promise.reject(new Error("Invalid order ID provided"));
+    }
+
+    // Make the API call
+    return new Promise((resolve, reject) => {
+      webGetRequest(
+        `${getUserTransactionDetailsUrl}${orderId}`,
+        (response) => {
+          resolve(response);
+        },
+        (error) => {
+          console.error("Error fetching transaction details:", error);
+          reject(error);
+        }
+      );
+    });
+  }, []);
+
+  const fetchAdminAssignedSubscriptions = React.useCallback(
+    (page = 1, limit = 20, userId = null) => {
+      setLoadingHistory(true);
+      let url = `${adminSubscriptionAdminAssignedUrl}?page=${page}&limit=${limit}`;
+      if (userId) url += `&user_id=${userId}`;
+
+      webGetRequest(
+        url,
+        (response) => {
+          if (response.success) {
+            setAdminSubscriptions(response.data || []);
+          } else {
+            showAlert(
+              "error",
+              response.message || "Failed to load admin subscriptions",
+              "Error"
+            );
+          }
+          setLoadingHistory(false);
+        },
+        () => {
+          setLoadingHistory(false);
+          showAlert("error", "Failed to load admin subscriptions", "Error");
+        }
+      );
+    },
+    []
+  );
+
+  const fetchRevenueAnalytics = React.useCallback(
+    (startDate = null, endDate = null, userId = null) => {
+      setLoadingHistory(true);
+      let url = `${adminSubscriptionRevenueUrl}?`;
+      const params = new URLSearchParams();
+
+      if (startDate) params.append("start_date", startDate);
+      if (endDate) params.append("end_date", endDate);
+      if (userId) params.append("user_id", userId);
+
+      url += params.toString();
+
+      webGetRequest(
+        url,
+        (response) => {
+          if (response.success) {
+            setRevenueData(response.data);
+          } else {
+            showAlert(
+              "error",
+              response.message || "Failed to load revenue data",
+              "Error"
+            );
+          }
+          setLoadingHistory(false);
+        },
+        () => {
+          setLoadingHistory(false);
+          showAlert("error", "Failed to load revenue data", "Error");
+        }
+      );
+    },
+    []
+  );
 
   const getPackageDuration = (pkg) => {
     // Try common keys; backend may supply any of these
@@ -292,21 +449,30 @@ function ManualSubscriptions() {
 
   const fetchPackages = React.useCallback(() => {
     setLoadingPackages(true);
-    // BusinessCategoryId 2 = App Subscriptions per spec
     webGetRequest(
-      `${getAllPackagesByCategoryUrl}2`,
-      (res) => {
-        if (Array.isArray(res)) {
-          // Keep only ACTIVE
-          const active = res.filter(
-            (p) => `${p.status}`.toUpperCase() === "ACTIVE"
-          );
+      adminSubscriptionPackagesUrl,
+      (response) => {
+        if (response.success) {
+          // Filter only ACTIVE packages
+          const activeBusinessServices =
+            response.business_services?.filter(
+              (p) => `${p.status}`.toUpperCase() === "ACTIVE"
+            ) || [];
+          const activeSubServices =
+            response.sub_services?.filter(
+              (p) => `${p.status}`.toUpperCase() === "ACTIVE"
+            ) || [];
+
           setPackages({
-            business_services: [],
-            sub_services: active,
+            business_services: activeBusinessServices,
+            sub_services: activeSubServices,
           });
         } else {
-          showAlert("warning", "No packages available", "Package Loading");
+          showAlert(
+            "warning",
+            response.message || "No packages available",
+            "Package Loading"
+          );
         }
         setLoadingPackages(false);
       },
@@ -322,55 +488,102 @@ function ManualSubscriptions() {
     );
   }, []);
 
-  const fetchDetailsAndHistory = React.useCallback((userId) => {
-    if (!userId) return;
-    setIsLoadingDetails(true);
-    setLoadingHistory(true);
+  const fetchDetailsAndHistory = React.useCallback(
+    (userId) => {
+      if (!userId) return;
+      setIsLoadingDetails(true);
+      setLoadingHistory(true);
 
-    // Fetch user details
-    webGetRequest(
-      `${adminSubscriptionUserDetailsUrl}${userId}/details`,
-      (res) => {
-        setUserDetails(res || null);
-        setIsLoadingDetails(false);
-      },
-      (error) => {
-        console.error("Failed to fetch user details:", error);
-        setUserDetails(null);
-        setIsLoadingDetails(false);
-        showAlert("error", "Failed to load user details", "Data Loading Error");
-      }
-    );
+      // Fetch user details
+      webGetRequest(
+        `${adminSubscriptionUserDetailsUrl}${userId}/details`,
+        (res) => {
+          setUserDetails(res || null);
+          setIsLoadingDetails(false);
+        },
+        (error) => {
+          console.error("Failed to fetch user details:", error);
+          setUserDetails(null);
+          setIsLoadingDetails(false);
+          showAlert(
+            "error",
+            "Failed to load user details",
+            "Data Loading Error"
+          );
+        }
+      );
 
-    // Fetch subscription history
-    webGetRequest(
-      `${adminSubscriptionUserHistoryUrl}${userId}/history`,
-      (res) => {
-        setHistory(res?.subscription_history || []);
-        setLoadingHistory(false);
-      },
-      (error) => {
-        console.error("Failed to fetch subscription history:", error);
-        setHistory([]);
-        setLoadingHistory(false);
-        showAlert(
-          "error",
-          "Failed to load subscription history",
-          "History Loading Error"
-        );
-      }
-    );
-  }, []);
+      // Fetch subscription history
+      const histUrl = `${adminSubscriptionUserHistoryUrl}${userId}/history?page=${historyPage}&limit=${historyLimit}`;
+      webGetRequest(
+        histUrl,
+        (res) => {
+          const list =
+            res?.subscription_history || res?.data || res?.results || [];
+          setHistory(Array.isArray(list) ? list : []);
+          const p = res?.pagination || {};
+          setHistoryPagination({
+            current_page: Number(p.current_page || historyPage),
+            last_page: Number(p.last_page || 1),
+            per_page: Number(p.per_page || historyLimit),
+            total: Number(p.total || (Array.isArray(list) ? list.length : 0)),
+            from: Number(p.from || 0),
+            to: Number(p.to || 0),
+          });
+          setLoadingHistory(false);
+        },
+        (error) => {
+          console.error("Failed to fetch subscription history:", error);
+          setHistory([]);
+          setHistoryPagination({
+            current_page: 1,
+            last_page: 1,
+            per_page: historyLimit,
+            total: 0,
+            from: 0,
+            to: 0,
+          });
+          setLoadingHistory(false);
+          showAlert(
+            "error",
+            "Failed to load subscription history",
+            "History Loading Error"
+          );
+        }
+      );
+    },
+    [historyPage, historyLimit]
+  );
 
   React.useEffect(() => {
     fetchPackages();
   }, [fetchPackages]);
+
+  // Sync active tab with path
+  React.useEffect(() => {
+    const path = location.pathname || "";
+    if (path.endsWith("/assignment")) {
+      setActiveTab(1);
+    } else if (path.endsWith("/analytics")) {
+      setActiveTab(3);
+    } else {
+      setActiveTab(0);
+    }
+  }, [location.pathname]);
 
   React.useEffect(() => {
     if (selectedUser?.id) {
       fetchDetailsAndHistory(selectedUser.id);
     }
   }, [selectedUser, fetchDetailsAndHistory]);
+
+  // Refetch history when pagination changes
+  React.useEffect(() => {
+    if (selectedUser?.id) {
+      fetchDetailsAndHistory(selectedUser.id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [historyPage, historyLimit]);
 
   const assignSubscription = () => {
     if (!selectedUser?.id || !packageId) {
@@ -382,9 +595,11 @@ function ManualSubscriptions() {
       return;
     }
 
-    const selectedPackage = packages.sub_services.find(
-      (p) => p.id === packageId
-    );
+    // Find package in both business_services and sub_services
+    const selectedPackage =
+      packages.business_services.find((p) => p.id === packageId) ||
+      packages.sub_services.find((p) => p.id === packageId);
+
     const confirmMessage = `Are you sure you want to assign "${
       selectedPackage?.name
     }" subscription to ${selectedUser.firstName || selectedUser.userName}?`;
@@ -399,11 +614,18 @@ function ManualSubscriptions() {
 
   const performAssignSubscription = () => {
     setLoadingAssign(true);
+
+    // Determine package type based on which array contains the package
+    const isBusinessService = packages.business_services.some(
+      (p) => p.id === packageId
+    );
+    const packageType = isBusinessService ? "business_service" : "sub_service";
+
     webPostRequest(
       adminSubscriptionAssignUrl,
       {
         user_id: selectedUser.id,
-        package_type: "sub_service",
+        package_type: packageType,
         package_id: packageId,
         subscription_days:
           getPackageDuration(
@@ -509,13 +731,25 @@ function ManualSubscriptions() {
     userDetails?.user_account || userDetails?.current_account;
   const currentSub = userDetails?.current_subscription;
 
-  const packageOptions = React.useMemo(
-    () =>
-      Array.isArray(packages?.sub_services)
-        ? packages.sub_services.filter(isAppSubscription)
-        : [],
-    [packages?.sub_services]
-  );
+  const packageOptions = React.useMemo(() => {
+    const businessServices = Array.isArray(packages?.business_services)
+      ? packages.business_services.map((pkg) => ({
+          ...pkg,
+          type: "Business Service",
+          category: "Main Services",
+        }))
+      : [];
+
+    const subServices = Array.isArray(packages?.sub_services)
+      ? packages.sub_services.map((pkg) => ({
+          ...pkg,
+          type: "Sub Service",
+          category: "App Subscriptions",
+        }))
+      : [];
+
+    return [...businessServices, ...subServices];
+  }, [packages?.business_services, packages?.sub_services]);
   return (
     <Box
       component="main"
@@ -819,7 +1053,16 @@ function ManualSubscriptions() {
           >
             <Tabs
               value={activeTab}
-              onChange={(_, newValue) => setActiveTab(newValue)}
+              onChange={(_, newValue) => {
+                setActiveTab(newValue);
+                if (newValue === 1) {
+                  navigate("/payments/manual-subscriptions/assignment");
+                } else if (newValue === 3) {
+                  navigate("/payments/manual-subscriptions/analytics");
+                } else {
+                  navigate("/payments/manual-subscriptions");
+                }
+              }}
               sx={{
                 borderBottom: 1,
                 borderColor: "divider",
@@ -854,6 +1097,15 @@ function ManualSubscriptions() {
                 icon={
                   <SvgIcon>
                     <CircleStackIcon />
+                  </SvgIcon>
+                }
+                iconPosition="start"
+              />
+              <Tab
+                label="Admin Analytics"
+                icon={
+                  <SvgIcon>
+                    <CurrencyDollarIcon />
                   </SvgIcon>
                 }
                 iconPosition="start"
@@ -987,53 +1239,73 @@ function ManualSubscriptions() {
                           </Stack>
                           {currentAccount ? (
                             <Stack spacing={2}>
-                              <Box>
-                                <Typography
-                                  variant="body2"
-                                  color="text.secondary"
-                                  sx={{ mb: 0.5 }}
-                                >
-                                  Account Type
-                                </Typography>
-                                <Chip
-                                  label={
-                                    currentAccount.user_account_type ||
-                                    "Unknown"
-                                  }
-                                  color="primary"
-                                  variant="outlined"
-                                  size="small"
-                                />
-                              </Box>
-                              <Box>
-                                <Typography
-                                  variant="body2"
-                                  color="text.secondary"
-                                  sx={{ mb: 0.5 }}
-                                >
-                                  Status
-                                </Typography>
-                                <Chip
-                                  label={currentAccount.status || "Unknown"}
-                                  color={getStatusColor(currentAccount.status)}
-                                  size="small"
-                                />
-                              </Box>
-                              <Box>
-                                <Typography
-                                  variant="body2"
-                                  color="text.secondary"
-                                  sx={{ mb: 0.5 }}
-                                >
-                                  Valid Until
-                                </Typography>
-                                <Typography
-                                  variant="body2"
-                                  sx={{ fontWeight: 500 }}
-                                >
-                                  {formatDate(currentAccount.valid_to)}
-                                </Typography>
-                              </Box>
+                              {(() => {
+                                const statusInfo = getSubscriptionStatusInfo(
+                                  currentAccount,
+                                  currentSub
+                                );
+                                return (
+                                  <>
+                                    <Box>
+                                      <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        sx={{ mb: 0.5 }}
+                                      >
+                                        Account Type
+                                      </Typography>
+                                      <Chip
+                                        label={statusInfo.type}
+                                        color={statusInfo.color}
+                                        variant="outlined"
+                                        size="small"
+                                      />
+                                    </Box>
+                                    <Box>
+                                      <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        sx={{ mb: 0.5 }}
+                                      >
+                                        Status
+                                      </Typography>
+                                      <Chip
+                                        label={statusInfo.status}
+                                        color={statusInfo.color}
+                                        size="small"
+                                      />
+                                    </Box>
+                                    <Box>
+                                      <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        sx={{ mb: 0.5 }}
+                                      >
+                                        Valid Until
+                                      </Typography>
+                                      <Typography
+                                        variant="body2"
+                                        sx={{
+                                          fontWeight: 500,
+                                          color: statusInfo.isExpired
+                                            ? "error.main"
+                                            : "text.primary",
+                                        }}
+                                      >
+                                        {formatDate(currentAccount.valid_to)}
+                                        {statusInfo.isExpired && (
+                                          <Chip
+                                            label="Expired"
+                                            color="error"
+                                            size="small"
+                                            sx={{ ml: 1 }}
+                                          />
+                                        )}
+                                      </Typography>
+                                    </Box>
+                                  </>
+                                );
+                              })()}
                             </Stack>
                           ) : (
                             <Alert severity="info" sx={{ mt: 1 }}>
@@ -1064,6 +1336,23 @@ function ManualSubscriptions() {
                           </Stack>
                           {currentSub ? (
                             <Stack spacing={2}>
+                              <Box>
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                  sx={{ mb: 0.5 }}
+                                >
+                                  Package
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  sx={{ fontWeight: 500 }}
+                                >
+                                  {getPackageNameFromServiceId(
+                                    currentSub.service_id
+                                  )}
+                                </Typography>
+                              </Box>
                               <Box>
                                 <Typography
                                   variant="body2"
@@ -1158,6 +1447,8 @@ function ManualSubscriptions() {
                             label: `${p.name} - ${formatMoney(p.amount)}`,
                             value: p.id,
                             raw: p,
+                            category: p.category,
+                            type: p.type,
                           }))}
                           value={
                             packageOptions
@@ -1186,47 +1477,55 @@ function ManualSubscriptions() {
                               }}
                             />
                           )}
-                          renderOption={(props, option) => (
-                            <Box component="li" {...props} sx={{ py: 1.5 }}>
-                              <Stack
-                                direction="row"
-                                alignItems="center"
-                                justifyContent="space-between"
-                                sx={{ width: "100%" }}
+                          renderOption={(props, option) => {
+                            const { key, ...otherProps } = props;
+                            return (
+                              <Box
+                                component="li"
+                                key={key}
+                                {...otherProps}
+                                sx={{ py: 1.5 }}
                               >
-                                <Stack>
-                                  <Typography
-                                    variant="body1"
-                                    sx={{ fontWeight: 500 }}
-                                  >
-                                    {option.raw.name}
-                                  </Typography>
-                                  <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                  >
-                                    App Subscription Package
-                                  </Typography>
-                                  {getPackageDuration(option.raw) && (
+                                <Stack
+                                  direction="row"
+                                  alignItems="center"
+                                  justifyContent="space-between"
+                                  sx={{ width: "100%" }}
+                                >
+                                  <Stack>
                                     <Typography
-                                      variant="caption"
+                                      variant="body1"
+                                      sx={{ fontWeight: 500 }}
+                                    >
+                                      {option.raw.name}
+                                    </Typography>
+                                    <Typography
+                                      variant="body2"
                                       color="text.secondary"
                                     >
-                                      Duration: {getPackageDuration(option.raw)}{" "}
-                                      days
+                                      {option.category} - {option.type}
                                     </Typography>
-                                  )}
+                                    {getPackageDuration(option.raw) && (
+                                      <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                      >
+                                        Duration:{" "}
+                                        {getPackageDuration(option.raw)} days
+                                      </Typography>
+                                    )}
+                                  </Stack>
+                                  <Typography
+                                    variant="h6"
+                                    color="primary"
+                                    sx={{ fontWeight: 600 }}
+                                  >
+                                    {formatMoney(option.raw.amount)}
+                                  </Typography>
                                 </Stack>
-                                <Typography
-                                  variant="h6"
-                                  color="primary"
-                                  sx={{ fontWeight: 600 }}
-                                >
-                                  {formatMoney(option.raw.amount)}
-                                </Typography>
-                              </Stack>
-                            </Box>
-                          )}
+                              </Box>
+                            );
+                          }}
                         />
 
                         <TextField
@@ -1539,6 +1838,453 @@ function ManualSubscriptions() {
                       </Table>
                     </TableContainer>
                   )}
+                  {/* Pagination Controls */}
+                  {!loadingHistory && (
+                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                      <TablePagination
+                        component="div"
+                        count={historyPagination.total}
+                        page={Math.max(
+                          0,
+                          (historyPagination.current_page || 1) - 1
+                        )}
+                        onPageChange={(_, newPage) =>
+                          setHistoryPage(newPage + 1)
+                        }
+                        rowsPerPage={historyLimit}
+                        onRowsPerPageChange={(e) => {
+                          const newLimit = parseInt(e.target.value, 10) || 10;
+                          setHistoryLimit(newLimit);
+                          setHistoryPage(1);
+                        }}
+                        rowsPerPageOptions={[10, 20, 50, 100]}
+                      />
+                    </Box>
+                  )}
+                </Stack>
+              </Box>
+            )}
+
+            {/* Tab Panel 4: Admin Analytics */}
+            {activeTab === 3 && (
+              <Box sx={{ p: 3 }}>
+                <Stack spacing={3}>
+                  {/* Header with Load Data Button */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                      Admin Analytics Dashboard
+                    </Typography>
+                    <Stack direction="row" spacing={2}>
+                      <Button
+                        variant="outlined"
+                        startIcon={
+                          <SvgIcon>
+                            <CircleStackIcon />
+                          </SvgIcon>
+                        }
+                        onClick={() => fetchAdminAssignedSubscriptions()}
+                        disabled={loadingHistory}
+                      >
+                        Load Subscriptions
+                      </Button>
+                      <Button
+                        variant="contained"
+                        startIcon={
+                          <SvgIcon>
+                            <CurrencyDollarIcon />
+                          </SvgIcon>
+                        }
+                        onClick={() => fetchRevenueAnalytics()}
+                        disabled={loadingHistory}
+                      >
+                        Load Revenue Data
+                      </Button>
+                    </Stack>
+                  </Box>
+
+                  {/* Revenue Summary Cards */}
+                  {revenueData && (
+                    <Grid container spacing={3}>
+                      <Grid item xs={12} sm={6} md={3}>
+                        <Card sx={{ textAlign: "center", p: 2 }}>
+                          <Typography
+                            variant="h4"
+                            color="primary"
+                            sx={{ fontWeight: 600 }}
+                          >
+                            {formatMoney(
+                              revenueData.summary?.total_revenue || 0
+                            )}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Total Revenue
+                          </Typography>
+                        </Card>
+                      </Grid>
+                      <Grid item xs={12} sm={6} md={3}>
+                        <Card sx={{ textAlign: "center", p: 2 }}>
+                          <Typography
+                            variant="h4"
+                            color="success.main"
+                            sx={{ fontWeight: 600 }}
+                          >
+                            {revenueData.summary?.total_subscriptions || 0}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Total Subscriptions
+                          </Typography>
+                        </Card>
+                      </Grid>
+                      <Grid item xs={12} sm={6} md={3}>
+                        <Card sx={{ textAlign: "center", p: 2 }}>
+                          <Typography
+                            variant="h4"
+                            color="info.main"
+                            sx={{ fontWeight: 600 }}
+                          >
+                            {revenueData.summary?.unique_users || 0}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Unique Users
+                          </Typography>
+                        </Card>
+                      </Grid>
+                      <Grid item xs={12} sm={6} md={3}>
+                        <Card sx={{ textAlign: "center", p: 2 }}>
+                          <Typography
+                            variant="h4"
+                            color="warning.main"
+                            sx={{ fontWeight: 600 }}
+                          >
+                            {formatMoney(
+                              revenueData.summary?.average_subscription_value ||
+                                0
+                            )}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Average Value
+                          </Typography>
+                        </Card>
+                      </Grid>
+                    </Grid>
+                  )}
+
+                  {/* Revenue by Package Table */}
+                  {revenueData?.revenue_by_package &&
+                    revenueData.revenue_by_package.length > 0 && (
+                      <Card>
+                        <CardContent>
+                          <Typography
+                            variant="h6"
+                            sx={{ mb: 2, fontWeight: 600 }}
+                          >
+                            Revenue by Package
+                          </Typography>
+                          <TableContainer>
+                            <Table>
+                              <TableHead>
+                                <TableRow>
+                                  <TableCell>Package Name</TableCell>
+                                  <TableCell align="right">Revenue</TableCell>
+                                  <TableCell align="right">
+                                    Subscriptions
+                                  </TableCell>
+                                  <TableCell align="right">Users</TableCell>
+                                </TableRow>
+                              </TableHead>
+                              <TableBody>
+                                {revenueData.revenue_by_package.map(
+                                  (pkg, index) => (
+                                    <TableRow key={index}>
+                                      <TableCell>
+                                        <Typography
+                                          variant="body2"
+                                          sx={{ fontWeight: 500 }}
+                                        >
+                                          {pkg.package_name}
+                                        </Typography>
+                                      </TableCell>
+                                      <TableCell align="right">
+                                        <Typography
+                                          variant="body2"
+                                          color="primary"
+                                          sx={{ fontWeight: 500 }}
+                                        >
+                                          {formatMoney(pkg.total_amount)}
+                                        </Typography>
+                                      </TableCell>
+                                      <TableCell align="right">
+                                        <Chip
+                                          label={pkg.subscription_count}
+                                          color="success"
+                                          size="small"
+                                        />
+                                      </TableCell>
+                                      <TableCell align="right">
+                                        <Chip
+                                          label={pkg.unique_users}
+                                          color="info"
+                                          size="small"
+                                        />
+                                      </TableCell>
+                                    </TableRow>
+                                  )
+                                )}
+                              </TableBody>
+                            </Table>
+                          </TableContainer>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                  {/* Monthly Breakdown Table */}
+                  {revenueData?.monthly_breakdown &&
+                    revenueData.monthly_breakdown.length > 0 && (
+                      <Card>
+                        <CardContent>
+                          <Typography
+                            variant="h6"
+                            sx={{ mb: 2, fontWeight: 600 }}
+                          >
+                            Monthly Breakdown
+                          </Typography>
+                          <TableContainer>
+                            <Table>
+                              <TableHead>
+                                <TableRow>
+                                  <TableCell>Month</TableCell>
+                                  <TableCell align="right">Revenue</TableCell>
+                                  <TableCell align="right">
+                                    Subscriptions
+                                  </TableCell>
+                                </TableRow>
+                              </TableHead>
+                              <TableBody>
+                                {revenueData.monthly_breakdown.map(
+                                  (month, index) => (
+                                    <TableRow key={index}>
+                                      <TableCell>
+                                        <Typography
+                                          variant="body2"
+                                          sx={{ fontWeight: 500 }}
+                                        >
+                                          {month.month}
+                                        </Typography>
+                                      </TableCell>
+                                      <TableCell align="right">
+                                        <Typography
+                                          variant="body2"
+                                          color="primary"
+                                          sx={{ fontWeight: 500 }}
+                                        >
+                                          {formatMoney(month.total_amount)}
+                                        </Typography>
+                                      </TableCell>
+                                      <TableCell align="right">
+                                        <Chip
+                                          label={month.subscription_count}
+                                          color="success"
+                                          size="small"
+                                        />
+                                      </TableCell>
+                                    </TableRow>
+                                  )
+                                )}
+                              </TableBody>
+                            </Table>
+                          </TableContainer>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                  {/* Admin Assigned Subscriptions List */}
+                  {adminSubscriptions && adminSubscriptions.length > 0 && (
+                    <Card>
+                      <CardContent>
+                        <Typography
+                          variant="h6"
+                          sx={{ mb: 2, fontWeight: 600 }}
+                        >
+                          Admin-Assigned Subscriptions (
+                          {adminSubscriptions.length})
+                        </Typography>
+                        <TableContainer>
+                          <Table>
+                            <TableHead>
+                              <TableRow>
+                                <TableCell>User</TableCell>
+                                <TableCell>Package</TableCell>
+                                <TableCell align="right">Amount</TableCell>
+                                <TableCell>Status</TableCell>
+                                <TableCell>Assigned Date</TableCell>
+                                <TableCell>Valid Until</TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {adminSubscriptions.map((sub, index) => (
+                                <TableRow key={index}>
+                                  <TableCell>
+                                    <Stack
+                                      direction="row"
+                                      alignItems="center"
+                                      spacing={1}
+                                    >
+                                      <Avatar
+                                        sx={{
+                                          width: 32,
+                                          height: 32,
+                                          fontSize: "0.875rem",
+                                        }}
+                                      >
+                                        {getInitials(
+                                          sub.user_details?.firstName,
+                                          sub.user_details?.secondName,
+                                          sub.user_details?.userName
+                                        )}
+                                      </Avatar>
+                                      <Box>
+                                        <Typography
+                                          variant="body2"
+                                          sx={{ fontWeight: 500 }}
+                                        >
+                                          {sub.user_details?.firstName}{" "}
+                                          {sub.user_details?.userName}
+                                        </Typography>
+                                        <Typography
+                                          variant="caption"
+                                          color="text.secondary"
+                                        >
+                                          ID: {sub.user_id}
+                                        </Typography>
+                                      </Box>
+                                    </Stack>
+                                  </TableCell>
+                                  <TableCell>
+                                    <Typography
+                                      variant="body2"
+                                      sx={{ fontWeight: 500 }}
+                                    >
+                                      {sub.package_name}
+                                    </Typography>
+                                  </TableCell>
+                                  <TableCell align="right">
+                                    <Typography
+                                      variant="body2"
+                                      color="primary"
+                                      sx={{ fontWeight: 500 }}
+                                    >
+                                      {formatMoney(sub.amount)}
+                                    </Typography>
+                                  </TableCell>
+                                  <TableCell>
+                                    <Chip
+                                      label={
+                                        sub.is_active ? "Active" : "Expired"
+                                      }
+                                      color={
+                                        sub.is_active ? "success" : "error"
+                                      }
+                                      size="small"
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    <Typography variant="body2">
+                                      {formatDate(sub.assigned_at)}
+                                    </Typography>
+                                  </TableCell>
+                                  <TableCell>
+                                    <Typography variant="body2">
+                                      {formatDate(
+                                        sub.current_subscription
+                                          ?.subscription_end_at
+                                      )}
+                                    </Typography>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Loading State */}
+                  {loadingHistory && (
+                    <Box
+                      sx={{ display: "flex", justifyContent: "center", py: 4 }}
+                    >
+                      <CircularProgress />
+                    </Box>
+                  )}
+
+                  {/* Empty State */}
+                  {!revenueData &&
+                    !adminSubscriptions?.length &&
+                    !loadingHistory && (
+                      <Card sx={{ textAlign: "center", py: 6 }}>
+                        <CardContent>
+                          <SvgIcon
+                            sx={{
+                              fontSize: 64,
+                              color: "text.secondary",
+                              mb: 2,
+                            }}
+                          >
+                            <CurrencyDollarIcon />
+                          </SvgIcon>
+                          <Typography
+                            variant="h6"
+                            color="text.secondary"
+                            sx={{ mb: 1 }}
+                          >
+                            No Analytics Data
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ mb: 3 }}
+                          >
+                            Click the buttons above to load admin subscription
+                            and revenue data
+                          </Typography>
+                          <Stack
+                            direction="row"
+                            spacing={2}
+                            justifyContent="center"
+                          >
+                            <Button
+                              variant="outlined"
+                              startIcon={
+                                <SvgIcon>
+                                  <CircleStackIcon />
+                                </SvgIcon>
+                              }
+                              onClick={() => fetchAdminAssignedSubscriptions()}
+                            >
+                              Load Subscriptions
+                            </Button>
+                            <Button
+                              variant="contained"
+                              startIcon={
+                                <SvgIcon>
+                                  <CurrencyDollarIcon />
+                                </SvgIcon>
+                              }
+                              onClick={() => fetchRevenueAnalytics()}
+                            >
+                              Load Revenue Data
+                            </Button>
+                          </Stack>
+                        </CardContent>
+                      </Card>
+                    )}
                 </Stack>
               </Box>
             )}

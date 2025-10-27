@@ -296,11 +296,6 @@ export const items = [
         roles: ["admin", "secretary"],
       },
       {
-        title: "Manual Subscriptions",
-        path: "/payments/manual-subscriptions",
-        roles: ["admin", "secretary"],
-      },
-      {
         title: "Expires Tomorrow",
         path: "/payments/accounts-expires-tomorrow",
         roles: ["admin", "secretary"],
@@ -324,6 +319,27 @@ export const items = [
         title: "Summary",
         path: "/payments/reports",
         roles: ["admin"],
+      },
+    ],
+  },
+  {
+    title: "Manual Subs",
+    path: "/payments/manual-subscriptions",
+    icon: (
+      <SvgIcon fontSize="small">
+        <CreditCardIcon />
+      </SvgIcon>
+    ),
+    children: [
+      {
+        title: "Assignment",
+        path: "/payments/manual-subscriptions/assignment",
+        roles: ["admin", "secretary"],
+      },
+      {
+        title: "Analytics",
+        path: "/payments/manual-subscriptions/analytics",
+        roles: ["admin", "secretary"],
       },
     ],
   },

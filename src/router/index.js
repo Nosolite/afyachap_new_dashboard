@@ -51,7 +51,10 @@ import Campaigns from "../pages/Campaigns/Campaigns";
 import ExpireTomorrow from "../pages/ExpireTomorrow/ExpireTomorrow";
 import PaymentAnalytics from "../pages/Payments/PaymentAnalytics";
 import AdsTracking from "../pages/AdsTracking/AdsTracking";
-import ManualSubscriptions from "../pages/Payments/ManualSubscriptions";
+// ManualSubs pages
+// import ManualSubscriptions from "../pages/Payments/ManualSubscriptions"; // no longer routed directly
+import Assignment from "../pages/Payments/ManualSubscriptions/Assignment";
+import Analytics from "../pages/Payments/ManualSubscriptions/Analytics";
 
 export const router = createBrowserRouter([
   {
@@ -391,7 +394,23 @@ export const router = createBrowserRouter([
     path: "payments/manual-subscriptions",
     element: (
       <Layout>
-        <ManualSubscriptions />
+        <Assignment />
+      </Layout>
+    ),
+  },
+  {
+    path: "payments/manual-subscriptions/assignment",
+    element: (
+      <Layout>
+        <Assignment />
+      </Layout>
+    ),
+  },
+  {
+    path: "payments/manual-subscriptions/analytics",
+    element: (
+      <Layout>
+        <Analytics />
       </Layout>
     ),
   },

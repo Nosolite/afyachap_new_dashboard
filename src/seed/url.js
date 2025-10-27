@@ -8,7 +8,7 @@ export const usersUrl = "https://www.users.afyachap.com";
 //TEST SERVER BASE URLs
 // export const contentsUrl = "https://www.testserver.content.afyachap.com"
 // export const doctorsUrl = "https://www.testserver.doctors.afyachap.com"
-export const usersTestServerUrl = "https://www.testserver.users.afyachap.com"
+export const usersTestServerUrl = "https://www.testserver.users.afyachap.com";
 
 //LOCAL SERVER BASE URLs
 // export const contentsUrl = "http://192.168.1.172:8004"
@@ -274,6 +274,9 @@ export const adminSubscriptionAssignUrl = `${adminSubscriptionBaseUrl}/assign`;
 export const adminSubscriptionUserHistoryUrl = `${adminSubscriptionBaseUrl}/user/`; // append {userId}/history
 export const adminSubscriptionCancelUrl = `${adminSubscriptionBaseUrl}/cancel`;
 export const adminSubscriptionProceedWithSelectedUserUrl = `${adminSubscriptionBaseUrl}/proceed-with-selected-user`;
+export const adminSubscriptionAdminAssignedUrl = `${adminSubscriptionBaseUrl}/admin-assigned-subscriptions`;
+export const adminSubscriptionRevenueUrl = `${adminSubscriptionBaseUrl}/admin-subscription-revenue`;
+export const getUserTransactionDetailsUrl = `${webUrl}/api/v1/get/user/transaction/details/`;
 
 /*Campaigns */
 export const campaignUrl = `${webUrl}/api/v1/campaigns`;
