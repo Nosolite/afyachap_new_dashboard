@@ -37,6 +37,7 @@ export const ViewOrderSideNav = (props) => {
   const paymentStatusPopOver = usePopover();
   const orderSideNav = useSelector((state) => state.ViewPaymentSideNavReducer);
   const [orderPaymentDetails, setOrderPaymentDetails] = React.useState({});
+  const lastFetchedOrderIdRef = React.useRef(null);
   const [openAlert, setOpenAlert] = React.useState(false);
   const [severity, setSeverity] = React.useState("");
   const [severityMessage, setSeverityMessage] = React.useState("");
@@ -157,42 +158,37 @@ export const ViewOrderSideNav = (props) => {
   };
 
   React.useEffect(() => {
-    if (orderSideNav?.orderSideNavContent?.payment_method === "ONLINE") {
+    const orderId = orderSideNav?.orderSideNavContent?.order_id;
+    const paymentMethod = orderSideNav?.orderSideNavContent?.payment_method;
+
+    if (paymentMethod === "ONLINE" && orderId) {
+      // Prevent re-fetch loop for the same order id
+      if (
+        lastFetchedOrderIdRef.current === orderId &&
+        orderPaymentDetails?.afyachap_data
+      ) {
+        return;
+      }
+      lastFetchedOrderIdRef.current = orderId;
       setIsLoading(true);
       webGetRequest(
-        `${getUserTransactionDetailsUrl}${orderSideNav?.orderSideNavContent?.order_id}`,
+        `${getUserTransactionDetailsUrl}${orderId}`,
         (response) => {
-          if (response.success && response.data) {
-            // Handle the new data structure
-            const { afyachap_data, selcom_data, user_details } = response.data;
-
-            // Update the order side nav content with the fetched data
-            const updatedOrderContent = {
-              ...orderSideNav.orderSideNavContent,
-              afyachap_data,
-              selcom_data,
-              user_details,
-            };
-
-            dispatch({
-              type: "TOOGLE_PAYMENT_SIDENAV",
-              payload: {
-                ...orderSideNav,
-                orderSideNavContent: updatedOrderContent,
-              },
-            });
-
-            setOrderPaymentDetails(response.data);
-          }
+          const data = response?.data || response;
+          setOrderPaymentDetails(data || {});
           setIsLoading(false);
         },
         (error) => {
           console.error("Error fetching transaction details:", error);
+          setOrderPaymentDetails({});
           setIsLoading(false);
         }
       );
     }
-  }, [orderSideNav]);
+  }, [
+    orderSideNav?.orderSideNavContent?.order_id,
+    orderSideNav?.orderSideNavContent?.payment_method,
+  ]);
 
   return (
     <Drawer
@@ -385,8 +381,8 @@ export const ViewOrderSideNav = (props) => {
                           "ONLINE" &&
                           orderSideNav?.orderSideNavContent?.payment_status ===
                             "PENDING" &&
-                          orderPaymentDetails?.data[0]?.payment_status ===
-                            "COMPLETED")) &&
+                          orderPaymentDetails?.selcom_data?.data?.[0]
+                            ?.payment_status === "COMPLETED")) &&
                         paymentStatusPopOver.handleOpen(event);
                     }}
                   >
@@ -442,17 +438,14 @@ export const ViewOrderSideNav = (props) => {
                 )}
 
               {/* Afyachap Transaction Details */}
-              {orderSideNav?.orderSideNavContent?.afyachap_data && (
+              {orderPaymentDetails?.afyachap_data && (
                 <>
                   <TableRow>
                     <TableCell sx={{ fontWeight: "bold" }}>
                       Service Type:
                     </TableCell>
                     <TableCell>
-                      {
-                        orderSideNav?.orderSideNavContent?.afyachap_data
-                          ?.service_name
-                      }
+                      {orderPaymentDetails?.afyachap_data?.service_name}
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -460,17 +453,13 @@ export const ViewOrderSideNav = (props) => {
                       Package Type:
                     </TableCell>
                     <TableCell>
-                      {
-                        orderSideNav?.orderSideNavContent?.afyachap_data
-                          ?.package_type
-                      }
+                      {orderPaymentDetails?.afyachap_data?.package_type}
                     </TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell sx={{ fontWeight: "bold" }}>Amount:</TableCell>
                     <TableCell>
-                      {orderSideNav?.orderSideNavContent?.afyachap_data?.amount}{" "}
-                      TZS
+                      {orderPaymentDetails?.afyachap_data?.amount} TZS
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -478,10 +467,7 @@ export const ViewOrderSideNav = (props) => {
                       Payment No:
                     </TableCell>
                     <TableCell>
-                      {
-                        orderSideNav?.orderSideNavContent?.afyachap_data
-                          ?.payment_no
-                      }
+                      {orderPaymentDetails?.afyachap_data?.payment_no}
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -489,24 +475,21 @@ export const ViewOrderSideNav = (props) => {
                       Transaction Date:
                     </TableCell>
                     <TableCell>
-                      {orderSideNav?.orderSideNavContent?.afyachap_data?.date}
+                      {orderPaymentDetails?.afyachap_data?.date}
                     </TableCell>
                   </TableRow>
                 </>
               )}
 
               {/* Selcom Payment Details */}
-              {orderSideNav?.orderSideNavContent?.selcom_data && (
+              {orderPaymentDetails?.selcom_data && (
                 <>
                   <TableRow>
                     <TableCell sx={{ fontWeight: "bold" }}>
                       Selcom Reference:
                     </TableCell>
                     <TableCell>
-                      {
-                        orderSideNav?.orderSideNavContent?.selcom_data
-                          ?.reference
-                      }
+                      {orderPaymentDetails?.selcom_data?.reference}
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -516,14 +499,11 @@ export const ViewOrderSideNav = (props) => {
                     <TableCell>
                       <Chip
                         color={
-                          orderSideNav?.orderSideNavContent?.selcom_data
-                            ?.resultcode === "000"
+                          orderPaymentDetails?.selcom_data?.resultcode === "000"
                             ? "success"
                             : "error"
                         }
-                        label={
-                          orderSideNav?.orderSideNavContent?.selcom_data?.result
-                        }
+                        label={orderPaymentDetails?.selcom_data?.result}
                         size="small"
                       />
                     </TableCell>
@@ -533,55 +513,46 @@ export const ViewOrderSideNav = (props) => {
                       Selcom Message:
                     </TableCell>
                     <TableCell>
-                      {orderSideNav?.orderSideNavContent?.selcom_data?.message}
+                      {orderPaymentDetails?.selcom_data?.message}
                     </TableCell>
                   </TableRow>
                 </>
               )}
 
               {/* User Details */}
-              {orderSideNav?.orderSideNavContent?.user_details && (
+              {orderPaymentDetails?.user_details && (
                 <>
                   <TableRow>
                     <TableCell sx={{ fontWeight: "bold" }}>User ID:</TableCell>
                     <TableCell>
-                      {orderSideNav?.orderSideNavContent?.user_details?.id}
+                      {orderPaymentDetails?.user_details?.id}
                     </TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell sx={{ fontWeight: "bold" }}>
-                      Full Name: j
+                      Full Name:
                     </TableCell>
                     <TableCell>
-                      {
-                        orderSideNav?.orderSideNavContent?.user_details
-                          ?.firstName
-                      }{" "}
-                      {
-                        orderSideNav?.orderSideNavContent?.user_details
-                          ?.secondName
-                      }
+                      {orderPaymentDetails?.user_details?.firstName}{" "}
+                      {orderPaymentDetails?.user_details?.secondName}
                     </TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell sx={{ fontWeight: "bold" }}>Phone:</TableCell>
                     <TableCell>
-                      {
-                        orderSideNav?.orderSideNavContent?.user_details
-                          ?.phoneNumber
-                      }
+                      {orderPaymentDetails?.user_details?.phoneNumber}
                     </TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell sx={{ fontWeight: "bold" }}>Email:</TableCell>
                     <TableCell>
-                      {orderSideNav?.orderSideNavContent?.user_details?.email}
+                      {orderPaymentDetails?.user_details?.email}
                     </TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell sx={{ fontWeight: "bold" }}>Gender:</TableCell>
                     <TableCell>
-                      {orderSideNav?.orderSideNavContent?.user_details?.gender}
+                      {orderPaymentDetails?.user_details?.gender}
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -589,10 +560,7 @@ export const ViewOrderSideNav = (props) => {
                       Date of Birth:
                     </TableCell>
                     <TableCell>
-                      {
-                        orderSideNav?.orderSideNavContent?.user_details
-                          ?.dateOfBirth
-                      }
+                      {orderPaymentDetails?.user_details?.dateOfBirth}
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -602,15 +570,11 @@ export const ViewOrderSideNav = (props) => {
                     <TableCell>
                       <Chip
                         color={
-                          orderSideNav?.orderSideNavContent?.user_details
-                            ?.status === "ACTIVE"
+                          orderPaymentDetails?.user_details?.status === "ACTIVE"
                             ? "success"
                             : "warning"
                         }
-                        label={
-                          orderSideNav?.orderSideNavContent?.user_details
-                            ?.status
-                        }
+                        label={orderPaymentDetails?.user_details?.status}
                         size="small"
                       />
                     </TableCell>

@@ -1284,6 +1284,7 @@ function ManualSubscriptions() {
                                         Valid Until
                                       </Typography>
                                       <Typography
+                                        component="div"
                                         variant="body2"
                                         sx={{
                                           fontWeight: 500,

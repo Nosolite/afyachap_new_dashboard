@@ -46,9 +46,32 @@ export const webGetRequest = async (url, onSuccess, onError) => {
       "Content-Type": "application/json",
     },
   })
-    .then((response) => response.json())
-    .then((result) => {
-      onSuccess(result);
+    .then(async (response) => {
+      const contentType = response.headers.get("content-type") || "";
+      const text = await response.text();
+
+      // For non-2xx responses, surface a structured error and avoid JSON parse errors
+      if (!response.ok) {
+        try {
+          const data = contentType.includes("application/json")
+            ? JSON.parse(text)
+            : { message: text };
+          onError({ status: response.status, data });
+        } catch (e) {
+          onError({ status: response.status, data: text });
+        }
+        return;
+      }
+
+      // Parse JSON only if server sent JSON; otherwise return empty object
+      try {
+        const result = contentType.includes("application/json")
+          ? JSON.parse(text)
+          : {};
+        onSuccess(result);
+      } catch (e) {
+        onError(e);
+      }
     })
     .catch((error) => {
       onError(error);
