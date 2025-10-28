@@ -337,6 +337,11 @@ export const items = [
         roles: ["admin", "secretary"],
       },
       {
+        title: "All Assignments",
+        path: "/payments/manual-subscriptions/all-assignments",
+        roles: ["admin", "secretary"],
+      },
+      {
         title: "Analytics",
         path: "/payments/manual-subscriptions/analytics",
         roles: ["admin", "secretary"],

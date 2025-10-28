@@ -55,6 +55,7 @@ import AdsTracking from "../pages/AdsTracking/AdsTracking";
 // import ManualSubscriptions from "../pages/Payments/ManualSubscriptions"; // no longer routed directly
 import Assignment from "../pages/Payments/ManualSubscriptions/Assignment";
 import Analytics from "../pages/Payments/ManualSubscriptions/Analytics";
+import AllAssignments from "../pages/Payments/ManualSubscriptions/AllAssignments";
 
 export const router = createBrowserRouter([
   {
@@ -411,6 +412,14 @@ export const router = createBrowserRouter([
     element: (
       <Layout>
         <Analytics />
+      </Layout>
+    ),
+  },
+  {
+    path: "payments/manual-subscriptions/all-assignments",
+    element: (
+      <Layout>
+        <AllAssignments />
       </Layout>
     ),
   },
