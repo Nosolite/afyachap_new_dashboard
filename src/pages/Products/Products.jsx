@@ -100,7 +100,8 @@ function Products() {
             content_id: productsSelection?.selected?.[0]?.id,
             notification_time: dayjs(),
             notification_repeat: 0,
-            notification_interval: 0
+            notification_interval: 0,
+            notification_audience: 'ALL',
         }
     ]
     const [order, setOrder] = React.useState('desc');

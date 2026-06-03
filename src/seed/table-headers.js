@@ -36,6 +36,10 @@ export const contentHeadCells = [
     label: "Notification Interval",
   },
   {
+    id: "notification_audience",
+    label: "Notification Audience",
+  },
+  {
     id: "notification_time",
     label: "Notification Time",
   },
@@ -948,6 +952,10 @@ export const productsHeadCells = [
   {
     id: "notification_interval",
     label: "Notification Interval",
+  },
+  {
+    id: "notification_audience",
+    label: "Notification Audience",
   },
   {
     id: "notification_time",

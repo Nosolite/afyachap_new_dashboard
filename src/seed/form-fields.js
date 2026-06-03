@@ -72,6 +72,16 @@ export const scheduleNotificationsFields = [
     { name: "notification_time", type: "dateTime", label: "Time" },
     { name: "notification_repeat", type: "number", label: "Notification Repeat", },
     { name: "notification_interval", type: "number", label: "Notification Interval", },
+    {
+        name: "notification_audience",
+        type: "select",
+        label: "Notification Audience",
+        items: [
+            { value: 'ALL', label: "ALL", },
+            { value: 'FREE', label: "FREE", },
+            { value: 'PREMIUM', label: "PREMIUM", },
+        ],
+    },
 ]
 
 export const approveContentFields = [
