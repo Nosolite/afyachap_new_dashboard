@@ -1,3 +1,4 @@
+import React from "react";
 import MagnifyingGlassIcon from "@heroicons/react/24/outline/MagnifyingGlassIcon";
 import {
   Box,
@@ -12,6 +13,8 @@ import { usePopover } from "../hooks/use-popover";
 import AdjustmentsHorizontalIcon from "@heroicons/react/24/outline/AdjustmentsHorizontalIcon";
 import ChevronDownIcon from "@heroicons/react/24/outline/ChevronDownIcon";
 
+const SEARCH_DEBOUNCE_MS = 2000;
+
 export const CustomSearch = ({
   body,
   handleBodyChange,
@@ -20,6 +23,31 @@ export const CustomSearch = ({
   popoverItems,
 }) => {
   const popOver = usePopover();
+  const debounceTimeoutRef = React.useRef(null);
+
+  React.useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleSearchChange = (event) => {
+    if (!handleSearch) {
+      return;
+    }
+
+    const value = event.target.value;
+
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    debounceTimeoutRef.current = setTimeout(() => {
+      handleSearch({ target: { value } });
+    }, SEARCH_DEBOUNCE_MS);
+  };
 
   return (
     <>
@@ -68,7 +96,7 @@ export const CustomSearch = ({
             </InputAdornment>
           }
           sx={{ maxWidth: 500, borderRadius: 50 }}
-          onChange={(event) => handleSearch && handleSearch(event)}
+          onChange={handleSearchChange}
         />
         <Box
           boxShadow={1}
