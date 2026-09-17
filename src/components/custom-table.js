@@ -62,7 +62,7 @@ export const CustomTable = (props) => {
           popoverItems={popoverItems}
         />
       )}
-      <Card elevation={1}>
+      <Card elevation={1} sx={{ position: "relative" }}>
         <Scrollbar>
           <Box sx={{ minWidth: 800 }}>
             <Table
@@ -449,16 +449,21 @@ export const CustomTable = (props) => {
             </Table>
           </Box>
         </Scrollbar>
-        {items.length === 0 && isLoading && (
+        {isLoading && (
           <Box
             sx={{
+              position: "absolute",
+              inset: 0,
+              zIndex: 2,
               display: "flex",
-              alignItems: "center",
+              alignItems: items.length ? "flex-start" : "center",
+              justifyContent: "center",
+              bgcolor: "rgba(255, 255, 255, 0.65)",
+              pt: items.length ? 10 : 0,
             }}
           >
             <CircularProgress
               sx={{
-                mx: "auto",
                 my: 3,
               }}
             />

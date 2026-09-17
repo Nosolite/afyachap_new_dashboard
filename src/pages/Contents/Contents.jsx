@@ -16,7 +16,7 @@ import { DeleteDialog } from '../../components/delete-dialog';
 import ViewContent from './ViewContent';
 import CreateContent from './CreateContent';
 import { CREATE, UPDATE, contentsTypes } from '../../utils/constant';
-import { addContentAudioUrl, deleteContentUrl, getAllAuthorUrl, getAllContentUrl, pinUnpinContentUrl, publishUnpublishContentUrl, scheduleContentNotificationUrl, verifyContentUrl } from '../../seed/url';
+import { addContentAudioUrl, deleteContentUrl, getAllAuthorUrl, getAllCategoriesByPaginationUrl, getAllContentUrl, getAllSubCategoriesUrl, pinUnpinContentUrl, publishUnpublishContentUrl, scheduleContentNotificationUrl, verifyContentUrl } from '../../seed/url';
 import { getRequest, postRequest } from '../../services/api-service';
 import { CustomAlert } from '../../components/custom-alert';
 import { useDispatch, useSelector } from 'react-redux';
@@ -26,7 +26,8 @@ import { approveContentFields, contentAudioFields, scheduleNotificationsFields }
 import dayjs from 'dayjs';
 import CheckBadgeIcon from '@heroicons/react/24/outline/CheckBadgeIcon';
 import { useAuth } from '../../hooks/use-auth';
-
+import FolderIcon from '@heroicons/react/24/outline/FolderIcon';
+import FolderOpenIcon from '@heroicons/react/24/outline/FolderOpenIcon';
 const useContentsIds = (contents) => {
   return React.useMemo(
     () => {
@@ -49,6 +50,10 @@ function Contents() {
   });
   const [authors, setAuthors] = React.useState([]);
   const [selectedAuthor, setSelectedAuthor] = React.useState({ label: "All authors", value: 0 });
+  const [categories, setCategories] = React.useState([]);
+  const [selectedCategory, setSelectedCategory] = React.useState({ label: "All categories", value: 0 });
+  const [subCategories, setSubCategories] = React.useState([]);
+  const [selectedSubCategory, setSelectedSubCategory] = React.useState({ label: "All sub categories", value: 0 });
   const [searchTerm, setSearchTerm] = React.useState("")
   const [isLoading, setIsLoading] = React.useState(true)
   const contentsIds = useContentsIds(contents.results);
@@ -93,6 +98,7 @@ function Contents() {
 
   const fetcher = React.useCallback(
     (page) => {
+      setIsLoading(true)
       postRequest(
         getAllContentUrl,
         {
@@ -103,6 +109,8 @@ function Contents() {
           platform: contentsTypes[currentTab].platform,
           approval: contentsTypes[currentTab].approval,
           author_id: selectedAuthor.value,
+          category_id: selectedCategory.value,
+          sub_category_id: selectedSubCategory.value,
           sort: orderBy + " " + order,
           limit: rowsPerPage,
           page: page
@@ -122,7 +130,7 @@ function Contents() {
         },
       )
     },
-    [searchTerm, currentTab, selectedAuthor.value, orderBy, order, rowsPerPage]
+    [searchTerm, currentTab, selectedAuthor.value, selectedCategory.value, selectedSubCategory.value, orderBy, order, rowsPerPage]
   );
 
   const publishUnpublishContent = (data) => {
@@ -236,6 +244,86 @@ function Contents() {
       (error) => { }
     )
   }, [])
+
+  const resetSubCategoryFilter = React.useCallback(() => {
+    setSelectedSubCategory({ label: "All sub categories", value: 0 })
+    setSubCategories([
+      {
+        id: 0,
+        label: "All sub categories",
+        icon: <SvgIcon fontSize="small" sx={{ color: "primary.main" }}><FolderOpenIcon /></SvgIcon>,
+        onClick: () => { setSelectedSubCategory({ label: "All sub categories", value: 0 }) }
+      },
+    ])
+  }, [])
+
+  const handleCategorySelect = React.useCallback((label, value) => {
+    setSelectedCategory({ label, value })
+    setSelectedSubCategory({ label: "All sub categories", value: 0 })
+
+    if (!value) {
+      resetSubCategoryFilter()
+      return
+    }
+
+    postRequest(
+      getAllSubCategoriesUrl,
+      { category_id: value },
+      (data) => {
+        const newData = (data || []).map(item => ({
+          id: item.id,
+          label: item.name,
+          icon: <SvgIcon fontSize="small" sx={{ color: "primary.main" }}><FolderOpenIcon /></SvgIcon>,
+          onClick: () => { setSelectedSubCategory({ label: item.name, value: item.id }) }
+        }))
+        setSubCategories([
+          {
+            id: 0,
+            label: "All sub categories",
+            icon: <SvgIcon fontSize="small" sx={{ color: "primary.main" }}><FolderOpenIcon /></SvgIcon>,
+            onClick: () => { setSelectedSubCategory({ label: "All sub categories", value: 0 }) }
+          },
+          ...newData
+        ])
+      },
+      () => {
+        resetSubCategoryFilter()
+      }
+    )
+  }, [resetSubCategoryFilter])
+
+  React.useEffect(() => {
+    postRequest(
+      getAllCategoriesByPaginationUrl,
+      {
+        sort: "id desc",
+        limit: 100,
+        page: 1
+      },
+      (data) => {
+        const newData = (data?.results || []).map(item => ({
+          id: item.id,
+          label: item.category_name,
+          icon: <SvgIcon fontSize="small" sx={{ color: "primary.main" }}><FolderIcon /></SvgIcon>,
+          onClick: () => { handleCategorySelect(item.category_name, item.id) }
+        }))
+        setCategories([
+          {
+            id: 0,
+            label: "All categories",
+            icon: <SvgIcon fontSize="small" sx={{ color: "primary.main" }}><FolderIcon /></SvgIcon>,
+            onClick: () => { handleCategorySelect("All categories", 0) }
+          },
+          ...newData
+        ])
+      },
+      () => { }
+    )
+  }, [handleCategorySelect])
+
+  React.useEffect(() => {
+    resetSubCategoryFilter()
+  }, [resetSubCategoryFilter])
 
   const handlePageChange = React.useCallback(
     (event, value) => {
@@ -564,9 +652,25 @@ function Contents() {
               })}
             </Tabs>
             <CustomSearch
-              selectedFilterValue={selectedAuthor.label}
-              popoverItems={authors}
               handleSearch={handleSearch}
+              filters={[
+                {
+                  key: "author",
+                  selectedValue: selectedAuthor.label,
+                  items: authors,
+                },
+                {
+                  key: "category",
+                  selectedValue: selectedCategory.label,
+                  items: categories,
+                },
+                {
+                  key: "subCategory",
+                  selectedValue: selectedSubCategory.label,
+                  items: subCategories,
+                  disabled: !selectedCategory.value,
+                },
+              ]}
             />
             <CustomTable
               order={order}

@@ -15,15 +15,65 @@ import ChevronDownIcon from "@heroicons/react/24/outline/ChevronDownIcon";
 
 const SEARCH_DEBOUNCE_MS = 2000;
 
+const FilterButton = ({ selectedValue, items, disabled = false }) => {
+  const popOver = usePopover();
+
+  return (
+    <>
+      {popOver.open && items && selectedValue && (
+        <CustomPopOver
+          id={popOver.id}
+          anchorEl={popOver.anchorRef}
+          open={popOver.open}
+          onClose={popOver.handleClose}
+          popoverItems={items}
+        />
+      )}
+      {items && selectedValue && (
+        <Button
+          variant="outlined"
+          disabled={disabled}
+          startIcon={
+            <SvgIcon fontSize="small">
+              <AdjustmentsHorizontalIcon />
+            </SvgIcon>
+          }
+          endIcon={
+            <SvgIcon fontSize="small">
+              <ChevronDownIcon />
+            </SvgIcon>
+          }
+          onClick={(event) => {
+            popOver.handleOpen(event);
+          }}
+        >
+          {selectedValue}
+        </Button>
+      )}
+    </>
+  );
+};
+
 export const CustomSearch = ({
   body,
   handleBodyChange,
   handleSearch,
   selectedFilterValue,
   popoverItems,
+  filters,
 }) => {
-  const popOver = usePopover();
+  const datePopOver = usePopover();
   const debounceTimeoutRef = React.useRef(null);
+
+  const filterGroups = React.useMemo(() => {
+    if (filters?.length) {
+      return filters;
+    }
+    if (popoverItems && selectedFilterValue) {
+      return [{ selectedValue: selectedFilterValue, items: popoverItems }];
+    }
+    return [];
+  }, [filters, popoverItems, selectedFilterValue]);
 
   React.useEffect(() => {
     return () => {
@@ -51,25 +101,16 @@ export const CustomSearch = ({
 
   return (
     <>
-      {popOver.open && body && (
+      {datePopOver.open && body && (
         <CustomPopOver
-          id={popOver.id}
-          anchorEl={popOver.anchorRef}
-          open={popOver.open}
-          onClose={popOver.handleClose}
+          id={datePopOver.id}
+          anchorEl={datePopOver.anchorRef}
+          open={datePopOver.open}
+          onClose={datePopOver.handleClose}
           showDates={true}
           from={body.from}
           to={body.to}
           handleBodyChange={handleBodyChange}
-        />
-      )}
-      {popOver.open && popoverItems && selectedFilterValue && (
-        <CustomPopOver
-          id={popOver.id}
-          anchorEl={popOver.anchorRef}
-          open={popOver.open}
-          onClose={popOver.handleClose}
-          popoverItems={popoverItems}
         />
       )}
       <Card
@@ -104,6 +145,8 @@ export const CustomSearch = ({
             alignItems: "center",
             display: "flex",
             alignContent: "center",
+            flexWrap: "wrap",
+            gap: 1,
           }}
         >
           {body && handleBodyChange && (
@@ -129,7 +172,7 @@ export const CustomSearch = ({
                   </SvgIcon>
                 }
                 onClick={(event) => {
-                  popOver.handleOpen(event);
+                  datePopOver.handleOpen(event);
                 }}
               >
                 {`${body.from.format("MMMM D, YYYY HH:mm:ss")} - `}
@@ -137,26 +180,14 @@ export const CustomSearch = ({
               </Button>
             </Box>
           )}
-          {popoverItems && selectedFilterValue && (
-            <Button
-              variant="outlined"
-              startIcon={
-                <SvgIcon fontSize="small">
-                  <AdjustmentsHorizontalIcon />
-                </SvgIcon>
-              }
-              endIcon={
-                <SvgIcon fontSize="small">
-                  <ChevronDownIcon />
-                </SvgIcon>
-              }
-              onClick={(event) => {
-                popOver.handleOpen(event);
-              }}
-            >
-              {selectedFilterValue}
-            </Button>
-          )}
+          {filterGroups.map((filter, index) => (
+            <FilterButton
+              key={filter.key || index}
+              selectedValue={filter.selectedValue}
+              items={filter.items}
+              disabled={filter.disabled}
+            />
+          ))}
         </Box>
       </Card>
     </>
