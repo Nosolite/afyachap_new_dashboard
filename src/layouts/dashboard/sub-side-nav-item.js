@@ -16,8 +16,9 @@ export const SubSideNavItem = (props) => {
             }}
             disableGutters
             sx={{
-                pl: '16px',
-                py: '6px',
+                pl: '10px',
+                pr: '8px',
+                py: '4px',
                 borderRadius: "26px",
                 color: 'text.primary',
                 '&:hover': {
@@ -31,6 +32,10 @@ export const SubSideNavItem = (props) => {
         >
             <ListItemText
                 primary={title}
+                primaryTypographyProps={{
+                    fontSize: 13,
+                    lineHeight: 1.3,
+                }}
             />
         </ListItemButton>
     );

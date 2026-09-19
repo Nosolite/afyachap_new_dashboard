@@ -1476,3 +1476,25 @@ export const pastUsersPaidHeadCells = [
   { id: "amountPaid", label: "Amount Paid" },
   { id: "paymentMethod", label: "Payment Method" },
 ];
+
+export const healthAIMessagesHeadCells = [
+  { id: "id", label: "ID" },
+  { id: "full_name", label: "User" },
+  { id: "username", label: "Username" },
+  { id: "role", label: "Role" },
+  { id: "content_preview", label: "Message" },
+  { id: "provider", label: "Provider" },
+  { id: "model", label: "Model" },
+  { id: "created_at", label: "Created At" },
+  { id: "actions", label: "Actions" },
+];
+
+export const healthAIBlockedUsersHeadCells = [
+  { id: "id", label: "ID" },
+  { id: "full_name", label: "User" },
+  { id: "username", label: "Username" },
+  { id: "user_id", label: "User ID" },
+  { id: "reason", label: "Reason" },
+  { id: "created_at", label: "Blocked At" },
+  { id: "actions", label: "Actions" },
+];

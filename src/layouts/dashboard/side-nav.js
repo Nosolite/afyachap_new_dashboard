@@ -85,15 +85,17 @@ export const SideNav = (props) => {
             component="nav"
             sx={{
               flexGrow: 1,
-              py: 2
+              py: 1,
+              px: 0.5
             }}
           >
             <Stack
               component="ul"
-              spacing={0.5}
+              spacing={0.25}
               sx={{
                 listStyle: 'none',
-                m: 0
+                m: 0,
+                p: 0
               }}
             >
               {items.map((item, index) => {
@@ -122,14 +124,14 @@ export const SideNav = (props) => {
           </Box>
           <Box
             sx={{
-              pb: 2
+              pb: 1
             }}
           >
             <Avatar
               sx={{
                 backgroundColor: 'transparent',
-                height: 56,
-                width: 56,
+                height: 48,
+                width: 48,
                 border: `1px solid grey`
               }}
             >
@@ -159,7 +161,8 @@ export const SideNav = (props) => {
               display: 'flex',
               justifyContent: "center",
               width: SUB_SIDE_NAV_WIDTH,
-              pt: 2,
+              pt: 1,
+              px: 0.5,
               height: '100%',
               '& .simplebar-content': {
                 height: '100%'

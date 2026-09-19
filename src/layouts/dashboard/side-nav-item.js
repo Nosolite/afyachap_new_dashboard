@@ -50,7 +50,8 @@ export const SideNavItem = (props) => {
           <Box
             sx={{
               width: "100%",
-              py: 1,
+              py: 0.5,
+              px: 0.5,
               borderRadius: "26px",
               ...(active && {
                 backgroundColor: 'primary.main'
@@ -83,9 +84,9 @@ export const SideNavItem = (props) => {
             color: 'text.primary',
             flexGrow: 1,
             fontFamily: (theme) => theme.typography.fontFamily,
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: 600,
-            lineHeight: '24px',
+            lineHeight: '18px',
             whiteSpace: 'nowrap',
             ...(disabled && {
               color: 'neutral.500'

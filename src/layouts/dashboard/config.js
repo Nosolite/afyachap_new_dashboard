@@ -7,6 +7,7 @@ import UsersIcon from "@heroicons/react/24/outline/UsersIcon";
 import UserGroupIcon from "@heroicons/react/24/outline/UserGroupIcon";
 import ShoppingCartIcon from "@heroicons/react/24/outline/ShoppingCartIcon";
 import HeartIcon from "@heroicons/react/24/outline/HeartIcon";
+import SparklesIcon from "@heroicons/react/24/outline/SparklesIcon";
 import { SvgIcon } from "@mui/material";
 
 export const items = [
@@ -200,6 +201,32 @@ export const items = [
       {
         title: "Report",
         path: "/medical/reports",
+        roles: ["admin"],
+      },
+    ],
+  },
+  {
+    title: "Health AI",
+    path: "/health-ai/settings",
+    icon: (
+      <SvgIcon fontSize="small">
+        <SparklesIcon />
+      </SvgIcon>
+    ),
+    children: [
+      {
+        title: "Settings",
+        path: "/health-ai/settings",
+        roles: ["admin"],
+      },
+      {
+        title: "Messages",
+        path: "/health-ai/messages",
+        roles: ["admin"],
+      },
+      {
+        title: "Blocked users",
+        path: "/health-ai/blocked-users",
         roles: ["admin"],
       },
     ],

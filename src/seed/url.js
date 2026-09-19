@@ -308,3 +308,14 @@ export const getRegisteredDatingUserByIdUrl = `${usersUrl}/api/get/registered/da
 /*Content Subscribers */
 export const getAllContentSubscribersByPaginationUrl = `${usersTestServerUrl}/api/v1/get/content/subscribers/by/pagination`;
 export const getAllAdsTrackingByPaginationUrl = `${usersUrl}/api/v1/get/all/ads/tracking/by/pagination`;
+
+/*Health AI Admin */
+export const healthAIGetSettingsUrl = `${usersUrl}/api/health-ai/admin/settings/get`;
+export const healthAIUpdateSettingsUrl = `${usersUrl}/api/health-ai/admin/settings/update`;
+export const healthAIAvailableModelsUrl = `${usersUrl}/api/health-ai/admin/available/models`;
+export const healthAIAdminMessagesUrl = `${usersUrl}/api/health-ai/admin/messages/by/pagination`;
+export const healthAIAdminUserMessagesUrl = `${usersUrl}/api/health-ai/admin/user/messages`;
+export const healthAIAdminStatsUrl = `${usersUrl}/api/health-ai/admin/stats`;
+export const healthAIBlockUserUrl = `${usersUrl}/api/health-ai/admin/user/block`;
+export const healthAIUnblockUserUrl = `${usersUrl}/api/health-ai/admin/user/unblock`;
+export const healthAIBlockedUsersUrl = `${usersUrl}/api/health-ai/admin/blocked/users/by/pagination`;

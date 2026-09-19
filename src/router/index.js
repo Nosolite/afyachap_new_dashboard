@@ -51,6 +51,9 @@ import Campaigns from "../pages/Campaigns/Campaigns";
 import ExpireTomorrow from "../pages/ExpireTomorrow/ExpireTomorrow";
 import PaymentAnalytics from "../pages/Payments/PaymentAnalytics";
 import AdsTracking from "../pages/AdsTracking/AdsTracking";
+import HealthAISettings from "../pages/HealthAI/HealthAISettings";
+import HealthAIMessages from "../pages/HealthAI/HealthAIMessages";
+import HealthAIBlockedUsers from "../pages/HealthAI/HealthAIBlockedUsers";
 // ManualSubs pages
 // import ManualSubscriptions from "../pages/Payments/ManualSubscriptions"; // no longer routed directly
 import Assignment from "../pages/Payments/ManualSubscriptions/Assignment";
@@ -484,6 +487,30 @@ export const router = createBrowserRouter([
     element: (
       <Layout>
         <OrderStatus />
+      </Layout>
+    ),
+  },
+  {
+    path: "health-ai/settings",
+    element: (
+      <Layout>
+        <HealthAISettings />
+      </Layout>
+    ),
+  },
+  {
+    path: "health-ai/messages",
+    element: (
+      <Layout>
+        <HealthAIMessages />
+      </Layout>
+    ),
+  },
+  {
+    path: "health-ai/blocked-users",
+    element: (
+      <Layout>
+        <HealthAIBlockedUsers />
       </Layout>
     ),
   },
