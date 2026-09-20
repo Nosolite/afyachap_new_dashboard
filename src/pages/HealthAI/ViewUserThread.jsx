@@ -120,9 +120,35 @@ function ViewUserThread({ open, handleClose, selected }) {
                     >
                       <Typography variant="caption" sx={{ opacity: 0.8, display: 'block', mb: 0.5 }}>
                         {isUser ? 'User' : 'Assistant'}
+                        {item.media_type && item.media_type !== 'NONE' ? ` · ${item.media_type}` : ''}
                         {item.provider ? ` · ${item.provider}` : ''}
                         {item.model ? ` / ${item.model}` : ''}
                       </Typography>
+                      {item.media_type === 'IMAGE' && item.media_url ? (
+                        <Box
+                          component="img"
+                          src={item.media_url}
+                          alt="Health AI upload"
+                          sx={{
+                            width: '100%',
+                            maxHeight: 240,
+                            objectFit: 'contain',
+                            borderRadius: 1,
+                            mb: 1,
+                            bgcolor: 'common.white',
+                          }}
+                        />
+                      ) : null}
+                      {item.media_type === 'AUDIO' && item.media_url ? (
+                        <Box sx={{ mb: 1 }}>
+                          <Box component="audio" controls src={item.media_url} sx={{ width: '100%' }} />
+                          {item.transcript ? (
+                            <Typography variant="caption" sx={{ display: 'block', mt: 0.5, opacity: 0.85 }}>
+                              Transcript: {item.transcript}
+                            </Typography>
+                          ) : null}
+                        </Box>
+                      ) : null}
                       <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
                         {item.content}
                       </Typography>

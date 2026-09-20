@@ -1482,6 +1482,7 @@ export const healthAIMessagesHeadCells = [
   { id: "full_name", label: "User" },
   { id: "username", label: "Username" },
   { id: "role", label: "Role" },
+  { id: "media_type", label: "Media" },
   { id: "content_preview", label: "Message" },
   { id: "provider", label: "Provider" },
   { id: "model", label: "Model" },

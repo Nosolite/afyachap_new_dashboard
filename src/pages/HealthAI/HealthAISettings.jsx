@@ -38,6 +38,12 @@ const schema = Yup.object().shape({
     .min(2, 'Minimum is 2')
     .max(50, 'Maximum is 50')
     .required('Max context messages is required'),
+  daily_image_limit: Yup.number()
+    .min(0, 'Minimum is 0')
+    .required('Daily image limit is required'),
+  daily_audio_limit: Yup.number()
+    .min(0, 'Minimum is 0')
+    .required('Daily audio limit is required'),
   system_prompt: Yup.string().required('System prompt is required'),
 })
 
@@ -47,6 +53,10 @@ const emptySettings = {
   model: '',
   daily_message_limit: 10,
   max_context_messages: 20,
+  images_enabled: true,
+  audio_enabled: true,
+  daily_image_limit: 5,
+  daily_audio_limit: 5,
   system_prompt: '',
 }
 
@@ -57,6 +67,8 @@ const emptyStats = {
   total_users: 0,
   blocked_users: 0,
   messages_today: 0,
+  images_today: 0,
+  audio_today: 0,
   total_prompt_tokens: 0,
   total_completion_tokens: 0,
 }
@@ -106,6 +118,10 @@ function HealthAISettings() {
           model: data.model || '',
           daily_message_limit: data.daily_message_limit || 10,
           max_context_messages: data.max_context_messages || 20,
+          images_enabled: data.images_enabled !== false,
+          audio_enabled: data.audio_enabled !== false,
+          daily_image_limit: data.daily_image_limit ?? 5,
+          daily_audio_limit: data.daily_audio_limit ?? 5,
           system_prompt: data.system_prompt || '',
         })
         setIsLoading(false)
@@ -206,6 +222,12 @@ function HealthAISettings() {
                 <StatCard label="Assistant Messages" value={stats.total_assistant_messages} loading={isStatsLoading} />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
+                <StatCard label="Images Today" value={stats.images_today} loading={isStatsLoading} />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <StatCard label="Audio Today" value={stats.audio_today} loading={isStatsLoading} />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
                 <StatCard label="Prompt Tokens" value={stats.total_prompt_tokens} loading={isStatsLoading} />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
@@ -226,6 +248,10 @@ function HealthAISettings() {
                     model: values.model,
                     daily_message_limit: Number(values.daily_message_limit),
                     max_context_messages: Number(values.max_context_messages),
+                    images_enabled: Boolean(values.images_enabled),
+                    audio_enabled: Boolean(values.audio_enabled),
+                    daily_image_limit: Number(values.daily_image_limit),
+                    daily_audio_limit: Number(values.daily_audio_limit),
                     system_prompt: values.system_prompt,
                   },
                   (data) => {
@@ -235,6 +261,10 @@ function HealthAISettings() {
                       model: data.model,
                       daily_message_limit: data.daily_message_limit,
                       max_context_messages: data.max_context_messages,
+                      images_enabled: data.images_enabled !== false,
+                      audio_enabled: data.audio_enabled !== false,
+                      daily_image_limit: data.daily_image_limit ?? 5,
+                      daily_audio_limit: data.daily_audio_limit ?? 5,
                       system_prompt: data.system_prompt,
                     })
                     showAlert('success', 'Health AI settings updated successfully')
@@ -378,6 +408,62 @@ function HealthAISettings() {
                               helperText={
                                 (touched.max_context_messages && errors.max_context_messages) ||
                                 'How many recent messages are sent to the model as context'
+                              }
+                            />
+                          </Grid>
+                          <Grid item xs={12} md={6}>
+                            <FormControlLabel
+                              control={
+                                <IOSSwitch
+                                  checked={Boolean(values.images_enabled)}
+                                  onChange={(event) =>
+                                    setFieldValue('images_enabled', event.target.checked)
+                                  }
+                                />
+                              }
+                              label={values.images_enabled ? 'Images Enabled' : 'Images Disabled'}
+                            />
+                            <TextField
+                              fullWidth
+                              margin="normal"
+                              type="number"
+                              label="Daily Free Image Limit"
+                              name="daily_image_limit"
+                              value={values.daily_image_limit}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              error={Boolean(errors.daily_image_limit && touched.daily_image_limit)}
+                              helperText={
+                                (touched.daily_image_limit && errors.daily_image_limit) ||
+                                'Set 0 to block image uploads even if enabled'
+                              }
+                            />
+                          </Grid>
+                          <Grid item xs={12} md={6}>
+                            <FormControlLabel
+                              control={
+                                <IOSSwitch
+                                  checked={Boolean(values.audio_enabled)}
+                                  onChange={(event) =>
+                                    setFieldValue('audio_enabled', event.target.checked)
+                                  }
+                                />
+                              }
+                              label={values.audio_enabled ? 'Audio Enabled' : 'Audio Disabled'}
+                            />
+                            <TextField
+                              fullWidth
+                              margin="normal"
+                              type="number"
+                              label="Daily Free Audio Limit"
+                              name="daily_audio_limit"
+                              value={values.daily_audio_limit}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              error={Boolean(errors.daily_audio_limit && touched.daily_audio_limit)}
+                              helperText={
+                                (touched.daily_audio_limit && errors.daily_audio_limit) ||
+                                'Voice notes use OpenAI Whisper for transcription'
                               }
                             />
                           </Grid>
