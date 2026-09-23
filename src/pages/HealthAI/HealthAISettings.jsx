@@ -65,6 +65,7 @@ const emptyStats = {
   total_user_messages: 0,
   total_assistant_messages: 0,
   total_users: 0,
+  total_sessions: 0,
   blocked_users: 0,
   messages_today: 0,
   images_today: 0,
@@ -211,6 +212,9 @@ function HealthAISettings() {
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
                 <StatCard label="Unique Users" value={stats.total_users} loading={isStatsLoading} />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <StatCard label="Sessions" value={stats.total_sessions} loading={isStatsLoading} />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
                 <StatCard label="Blocked Users" value={stats.blocked_users} loading={isStatsLoading} />

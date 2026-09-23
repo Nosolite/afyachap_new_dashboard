@@ -313,6 +313,7 @@ export const getAllAdsTrackingByPaginationUrl = `${usersUrl}/api/v1/get/all/ads/
 export const healthAIGetSettingsUrl = `${usersUrl}/api/health-ai/admin/settings/get`;
 export const healthAIUpdateSettingsUrl = `${usersUrl}/api/health-ai/admin/settings/update`;
 export const healthAIAvailableModelsUrl = `${usersUrl}/api/health-ai/admin/available/models`;
+export const healthAIAdminSessionsUrl = `${usersUrl}/api/health-ai/admin/sessions/by/pagination`;
 export const healthAIAdminMessagesUrl = `${usersUrl}/api/health-ai/admin/messages/by/pagination`;
 export const healthAIAdminUserMessagesUrl = `${usersUrl}/api/health-ai/admin/user/messages`;
 export const healthAIAdminStatsUrl = `${usersUrl}/api/health-ai/admin/stats`;

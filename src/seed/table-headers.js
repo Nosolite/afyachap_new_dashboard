@@ -1477,10 +1477,22 @@ export const pastUsersPaidHeadCells = [
   { id: "paymentMethod", label: "Payment Method" },
 ];
 
+export const healthAISessionsHeadCells = [
+  { id: "id", label: "ID" },
+  { id: "full_name", label: "User" },
+  { id: "username", label: "Username" },
+  { id: "title", label: "Session" },
+  { id: "message_count", label: "Messages" },
+  { id: "last_message_at", label: "Last Message" },
+  { id: "created_at", label: "Created At" },
+  { id: "actions", label: "Actions" },
+];
+
 export const healthAIMessagesHeadCells = [
   { id: "id", label: "ID" },
   { id: "full_name", label: "User" },
   { id: "username", label: "Username" },
+  { id: "session_title", label: "Session" },
   { id: "role", label: "Role" },
   { id: "media_type", label: "Media" },
   { id: "content_preview", label: "Message" },

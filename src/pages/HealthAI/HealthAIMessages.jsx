@@ -5,24 +5,16 @@ import NoSymbolIcon from '@heroicons/react/24/outline/NoSymbolIcon'
 import { useSelection } from '../../hooks/use-selection'
 import { CustomTable } from '../../components/custom-table'
 import { CustomSearch } from '../../components/custom-search'
-import { healthAIMessagesHeadCells } from '../../seed/table-headers'
+import { healthAISessionsHeadCells } from '../../seed/table-headers'
 import { filterItems } from '../../utils/constant'
 import { authPostRequest } from '../../services/api-service'
-import { healthAIAdminMessagesUrl } from '../../seed/url'
+import { healthAIAdminSessionsUrl } from '../../seed/url'
 import { CustomAlert } from '../../components/custom-alert'
 import ViewUserThread from './ViewUserThread'
 import BlockUserDialog from './BlockUserDialog'
 
 const useContentsIds = (contents) => {
   return React.useMemo(() => contents.map((item) => item.id), [contents])
-}
-
-const truncate = (value, max = 80) => {
-  const text = String(value || '')
-  if (text.length <= max) {
-    return text
-  }
-  return `${text.slice(0, max)}...`
 }
 
 function HealthAIMessages() {
@@ -43,7 +35,7 @@ function HealthAIMessages() {
   const [severity, setSeverity] = React.useState('success')
   const [severityMessage, setSeverityMessage] = React.useState('')
   const [order, setOrder] = React.useState('desc')
-  const [orderBy, setOrderBy] = React.useState('t1.id')
+  const [orderBy, setOrderBy] = React.useState('COALESCE(t1.last_message_at, t1.updated_at)')
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc'
@@ -55,7 +47,7 @@ function HealthAIMessages() {
     (page) => {
       setIsLoading(true)
       authPostRequest(
-        healthAIAdminMessagesUrl,
+        healthAIAdminSessionsUrl,
         {
           query: searchTerm,
           sort: `${orderBy} ${order}`,
@@ -63,15 +55,9 @@ function HealthAIMessages() {
           page,
         },
         (data) => {
-          const results = Array.isArray(data?.results)
-            ? data.results.map((item) => ({
-                ...item,
-                content_preview: truncate(item.content),
-              }))
-            : []
           setContents({
             ...data,
-            results,
+            results: Array.isArray(data?.results) ? data.results : [],
           })
           setIsLoading(false)
         },
@@ -117,14 +103,14 @@ function HealthAIMessages() {
   const contentPopoverItems = [
     {
       id: 'view',
-      label: 'View thread',
+      label: 'View session',
       icon: (
         <SvgIcon fontSize="small" sx={{ color: 'text.primary' }}>
           <EyeIcon />
         </SvgIcon>
       ),
       onClick: () => {
-        if (contentsSelection?.selected[0]?.user_id) {
+        if (contentsSelection?.selected[0]?.id) {
           setOpenViewDialog(true)
         }
       },
@@ -182,9 +168,9 @@ function HealthAIMessages() {
         <Container maxWidth={false}>
           <Stack spacing={2}>
             <Stack spacing={1}>
-              <Typography variant="h4">Health AI Messages</Typography>
+              <Typography variant="h4">Health AI Sessions</Typography>
               <Typography variant="body2" color="text.secondary">
-                Single continuous thread per user. Open a thread or block a user from AI chat.
+                ChatGPT-style conversations. Open a session thread or block a user from AI chat.
               </Typography>
             </Stack>
             <CustomSearch popoverItems={filterItems} handleSearch={handleSearch} />
@@ -200,7 +186,7 @@ function HealthAIMessages() {
               page={contents.page >= 1 ? contents.page - 1 : contents.page}
               rowsPerPage={rowsPerPage}
               selected={contentsSelection.selected}
-              headCells={healthAIMessagesHeadCells}
+              headCells={healthAISessionsHeadCells}
               popoverItems={contentPopoverItems}
               isLoading={isLoading}
             />

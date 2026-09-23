@@ -33,14 +33,19 @@ function ViewUserThread({ open, handleClose, selected }) {
     }
 
     setIsLoading(true)
+    const payload = {
+      user_id: selected.user_id,
+      sort: 'id asc',
+      limit: 200,
+      page: 1,
+    }
+    if (selected.id) {
+      payload.session_id = selected.id
+    }
+
     authPostRequest(
       healthAIAdminUserMessagesUrl,
-      {
-        user_id: selected.user_id,
-        sort: 'id asc',
-        limit: 100,
-        page: 1,
-      },
+      payload,
       (data) => {
         setMessages(Array.isArray(data?.results) ? data.results : [])
         setIsLoading(false)
@@ -56,6 +61,7 @@ function ViewUserThread({ open, handleClose, selected }) {
     selected?.full_name?.trim() ||
     selected?.username ||
     `User #${selected?.user_id || ''}`
+  const sessionTitle = selected?.title || selected?.session_title || `Session #${selected?.id || ''}`
 
   return (
     <Dialog
@@ -73,7 +79,7 @@ function ViewUserThread({ open, handleClose, selected }) {
           </SvgIcon>
         </IconButton>
       </DialogActions>
-      <DialogTitle>{`Health AI thread · ${titleName}`}</DialogTitle>
+      <DialogTitle>{`${sessionTitle} · ${titleName}`}</DialogTitle>
       <DialogContent dividers>
         {isLoading ? (
           <Box
@@ -96,7 +102,7 @@ function ViewUserThread({ open, handleClose, selected }) {
           >
             <Stack spacing={1.5} sx={{ py: 1 }}>
               {messages.length === 0 && (
-                <Typography color="text.secondary">No messages found for this user.</Typography>
+                <Typography color="text.secondary">No messages found for this session.</Typography>
               )}
               {messages.map((item) => {
                 const isUser = item.role === 'USER'

@@ -220,7 +220,7 @@ export const items = [
         roles: ["admin"],
       },
       {
-        title: "Messages",
+        title: "Sessions",
         path: "/health-ai/messages",
         roles: ["admin"],
       },
