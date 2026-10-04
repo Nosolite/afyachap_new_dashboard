@@ -1,5 +1,5 @@
 import React from 'react'
-import { Avatar, CircularProgress, Dialog, DialogActions, DialogContent, IconButton, ImageList, ImageListItem, List, ListItem, ListItemAvatar, ListItemText, Slide, SvgIcon, Tab, Table, TableBody, TableCell, TableRow, Tabs, Typography, } from '@mui/material'
+import { Avatar, CircularProgress, Dialog, DialogActions, DialogContent, IconButton, ImageList, ImageListItem, List, ListItem, ListItemAvatar, ListItemText, Slide, Stack, SvgIcon, Tab, Table, TableBody, TableCell, TableRow, Tabs, Typography, } from '@mui/material'
 import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon';
 import TrashIcon from '@heroicons/react/24/outline/TrashIcon';
 import { Scrollbar } from '../../components/scrollbar';
@@ -177,7 +177,12 @@ function ViewContent({ open, handleClose, selected, setIsDeleting, setSeverityMe
                                     <TableCell>Description</TableCell>
                                     <TableCell>
                                         {isLoadingDescription ?
-                                            <CircularProgress size={20} /> :
+                                            <Stack direction="row" spacing={1} alignItems="center">
+                                                <CircularProgress size={20} />
+                                                <Typography variant="body2" color="text.secondary">
+                                                    Loading description...
+                                                </Typography>
+                                            </Stack> :
                                             <Typography
                                                 component="div"
                                                 dangerouslySetInnerHTML={{ __html: description }}

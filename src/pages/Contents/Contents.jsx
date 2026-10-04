@@ -1,6 +1,6 @@
 import React from 'react'
 import PlusIcon from '@heroicons/react/24/outline/PlusIcon';
-import { Box, Button, Container, Stack, SvgIcon, Tab, Tabs, Typography } from '@mui/material';
+import { Backdrop, Box, Button, CircularProgress, Container, Stack, SvgIcon, Tab, Tabs, Typography } from '@mui/material';
 import { useSelection } from '../../hooks/use-selection';
 import { CustomTable } from '../../components/custom-table';
 import { CustomSearch } from '../../components/custom-search';
@@ -70,6 +70,7 @@ function Contents() {
   const [severityMessage, setSeverityMessage] = React.useState("")
   const [isSubmitting, setSubmitting] = React.useState(false)
   const [isPinning, setPinning] = React.useState(false)
+  const [isLoadingContent, setIsLoadingContent] = React.useState(false)
   const [currentTab, setCurrentTab] = React.useState(0)
   const verificationHistorySideNav = useSelector((state) => state.ViewPaymentSideNavReducer);
   const contentAudioValues = [
@@ -479,15 +480,17 @@ function Contents() {
       icon: <SvgIcon fontSize="small" sx={{ color: "text.primary" }}><PencilIcon /></SvgIcon>,
       onClick: () => {
         const selectedContent = contentsSelection?.selected[0]
-        if (!selectedContent?.id) {
+        if (!selectedContent?.id || isLoadingContent) {
           return
         }
+        setIsLoadingContent(true)
         postRequest(
           getSingleContentUrl,
           {
             content_id: selectedContent.id,
           },
           (data) => {
+            setIsLoadingContent(false)
             setAction(UPDATE)
             const author = authors.find(authorSelected => authorSelected.id === selectedContent.author_id);
             if (author !== undefined) {
@@ -516,6 +519,7 @@ function Contents() {
             handleClickOpenCreateDialog()
           },
           (error) => {
+            setIsLoadingContent(false)
             setSeverityMessage(error?.response?.data?.message?.[0] || "Failed to load content details")
             setSeverity("error")
             handleClickAlert()
@@ -537,6 +541,13 @@ function Contents() {
 
   return (
     <>
+      <Backdrop
+        open={isLoadingContent}
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.modal + 1, flexDirection: "column", gap: 2 }}
+      >
+        <CircularProgress color="inherit" />
+        <Typography variant="body1">Loading content...</Typography>
+      </Backdrop>
       {openAlert &&
         <CustomAlert
           openAlert={openAlert}
