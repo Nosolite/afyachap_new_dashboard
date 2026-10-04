@@ -27,6 +27,7 @@ export const createContentUrl = `${contentsUrl}/api/v1/add/content/v2`;
 export const addContentCoverImageUrl = `${contentsUrl}/api/v1/add/content/cover/image`;
 export const addContentAudioUrl = `${contentsUrl}/api/v1/add/update/content/audio`;
 export const getAllContentUrl = `${contentsUrl}/api/v1/get/all/contents/by/pagination/web`;
+export const getSingleContentUrl = `${contentsUrl}/api/v1/get/single/content`;
 export const getAllContentCoversUrl = `${contentsUrl}/api/v1/view/content/cover/image/of/specific/content`;
 export const updateContentUrl = `${contentsUrl}/api/v1/update/content`;
 export const verifyContentUrl = `${contentsUrl}/api/v1/add/content/verification`;

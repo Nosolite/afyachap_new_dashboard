@@ -16,7 +16,7 @@ import { DeleteDialog } from '../../components/delete-dialog';
 import ViewContent from './ViewContent';
 import CreateContent from './CreateContent';
 import { CREATE, UPDATE, contentsTypes } from '../../utils/constant';
-import { addContentAudioUrl, deleteContentUrl, getAllAuthorUrl, getAllCategoriesByPaginationUrl, getAllContentUrl, getAllSubCategoriesUrl, pinUnpinContentUrl, publishUnpublishContentUrl, scheduleContentNotificationUrl, verifyContentUrl } from '../../seed/url';
+import { addContentAudioUrl, deleteContentUrl, getAllAuthorUrl, getAllCategoriesByPaginationUrl, getAllContentUrl, getAllSubCategoriesUrl, getSingleContentUrl, pinUnpinContentUrl, publishUnpublishContentUrl, scheduleContentNotificationUrl, verifyContentUrl } from '../../seed/url';
 import { getRequest, postRequest } from '../../services/api-service';
 import { CustomAlert } from '../../components/custom-alert';
 import { useDispatch, useSelector } from 'react-redux';
@@ -478,34 +478,49 @@ function Contents() {
       label: 'Edit',
       icon: <SvgIcon fontSize="small" sx={{ color: "text.primary" }}><PencilIcon /></SvgIcon>,
       onClick: () => {
-        if (contentsSelection?.selected[0]?.id) {
-          setAction(UPDATE)
-          const author = authors.find(authorSelected => authorSelected.id === contentsSelection.selected[0].author_id);
-          if (author !== undefined) {
-            dispatch({
-              type: "CONTENT_INFO",
-              payload: {
-                id: contentsSelection.selected[0].id,
-                title: contentsSelection.selected[0].title,
-                short_description: contentsSelection.selected[0].short_description,
-                description: contentsSelection.selected[0].description,
-                content_link: contentsSelection.selected[0].content_link,
-                content_link_text: contentsSelection.selected[0].content_link_text,
-                is_in_free_package: contentsSelection.selected[0].is_package_free,
-                is_published: contentsSelection.selected[0].is_published,
-                author_id: author.user_id,
-                category_id: contentsSelection.selected[0].category_id,
-                sub_category_id: contentsSelection.selected[0].sub_category_id,
-                product_id: contentsSelection.selected[0].product_id,
-                campaign_id: contentsSelection.selected[0].campaign_id,
-                last_visible_cover_image: contentsSelection.selected[0].last_visible_cover_image,
-                platform: contentsSelection.selected[0].platform,
-                is_doctor: author.is_doctor,
-              },
-            })
-          }
-          handleClickOpenCreateDialog()
+        const selectedContent = contentsSelection?.selected[0]
+        if (!selectedContent?.id) {
+          return
         }
+        postRequest(
+          getSingleContentUrl,
+          {
+            content_id: selectedContent.id,
+          },
+          (data) => {
+            setAction(UPDATE)
+            const author = authors.find(authorSelected => authorSelected.id === selectedContent.author_id);
+            if (author !== undefined) {
+              dispatch({
+                type: "CONTENT_INFO",
+                payload: {
+                  id: selectedContent.id,
+                  title: selectedContent.title,
+                  short_description: selectedContent.short_description,
+                  description: data?.description || "",
+                  content_link: selectedContent.content_link,
+                  content_link_text: selectedContent.content_link_text,
+                  is_in_free_package: selectedContent.is_package_free,
+                  is_published: selectedContent.is_published,
+                  author_id: author.user_id,
+                  category_id: selectedContent.category_id,
+                  sub_category_id: selectedContent.sub_category_id,
+                  product_id: selectedContent.product_id,
+                  campaign_id: selectedContent.campaign_id,
+                  last_visible_cover_image: selectedContent.last_visible_cover_image,
+                  platform: selectedContent.platform,
+                  is_doctor: author.is_doctor,
+                },
+              })
+            }
+            handleClickOpenCreateDialog()
+          },
+          (error) => {
+            setSeverityMessage(error?.response?.data?.message?.[0] || "Failed to load content details")
+            setSeverity("error")
+            handleClickAlert()
+          },
+        )
       },
     },
     {

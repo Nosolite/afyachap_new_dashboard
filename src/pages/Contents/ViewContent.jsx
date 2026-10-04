@@ -1,11 +1,11 @@
 import React from 'react'
-import { Avatar, Dialog, DialogActions, DialogContent, IconButton, ImageList, ImageListItem, List, ListItem, ListItemAvatar, ListItemText, Slide, SvgIcon, Tab, Table, TableBody, TableCell, TableRow, Tabs, Typography, } from '@mui/material'
+import { Avatar, CircularProgress, Dialog, DialogActions, DialogContent, IconButton, ImageList, ImageListItem, List, ListItem, ListItemAvatar, ListItemText, Slide, SvgIcon, Tab, Table, TableBody, TableCell, TableRow, Tabs, Typography, } from '@mui/material'
 import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon';
 import TrashIcon from '@heroicons/react/24/outline/TrashIcon';
 import { Scrollbar } from '../../components/scrollbar';
 import { getInitials } from '../../utils/get-initials';
 import { postRequest } from '../../services/api-service';
-import { deleteCommentUrl } from '../../seed/url';
+import { deleteCommentUrl, getSingleContentUrl } from '../../seed/url';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />
@@ -13,6 +13,29 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 function ViewContent({ open, handleClose, selected, setIsDeleting, setSeverityMessage, setSeverity, handleClickAlert, onSelectOne }) {
     const [currentTab, setCurrentTab] = React.useState(0)
+    const [description, setDescription] = React.useState("")
+    const [isLoadingDescription, setIsLoadingDescription] = React.useState(true)
+
+    React.useEffect(() => {
+        if (!selected?.id) {
+            return
+        }
+        setIsLoadingDescription(true)
+        postRequest(
+            getSingleContentUrl,
+            {
+                content_id: selected.id,
+            },
+            (data) => {
+                setDescription(data?.description || "")
+                setIsLoadingDescription(false)
+            },
+            (error) => {
+                setDescription("")
+                setIsLoadingDescription(false)
+            },
+        )
+    }, [selected?.id])
 
     const handleTabChange = React.useCallback(
         (event, value) => {
@@ -153,10 +176,13 @@ function ViewContent({ open, handleClose, selected, setIsDeleting, setSeverityMe
                                 <TableRow>
                                     <TableCell>Description</TableCell>
                                     <TableCell>
-                                        <Typography
-                                            component="div"
-                                            dangerouslySetInnerHTML={{ __html: selected.description }}
-                                        />
+                                        {isLoadingDescription ?
+                                            <CircularProgress size={20} /> :
+                                            <Typography
+                                                component="div"
+                                                dangerouslySetInnerHTML={{ __html: description }}
+                                            />
+                                        }
                                     </TableCell>
                                 </TableRow>
                             </TableBody>
