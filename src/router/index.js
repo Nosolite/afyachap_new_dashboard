@@ -57,8 +57,7 @@ import HealthAIBlockedUsers from "../pages/HealthAI/HealthAIBlockedUsers";
 // ManualSubs pages
 // import ManualSubscriptions from "../pages/Payments/ManualSubscriptions"; // no longer routed directly
 import Assignment from "../pages/Payments/ManualSubscriptions/Assignment";
-import Analytics from "../pages/Payments/ManualSubscriptions/Analytics";
-import AllAssignments from "../pages/Payments/ManualSubscriptions/AllAssignments";
+import Audit from "../pages/Payments/ManualSubscriptions/Audit";
 
 export const router = createBrowserRouter([
   {
@@ -411,18 +410,10 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "payments/manual-subscriptions/analytics",
+    path: "payments/manual-subscriptions/audit",
     element: (
       <Layout>
-        <Analytics />
-      </Layout>
-    ),
-  },
-  {
-    path: "payments/manual-subscriptions/all-assignments",
-    element: (
-      <Layout>
-        <AllAssignments />
+        <Audit />
       </Layout>
     ),
   },

@@ -1,206 +1,260 @@
-import React from 'react'
-import { Box, Container, Dialog, DialogActions, DialogContent, IconButton, Stack, SvgIcon, Typography } from '@mui/material';
-import { useSelection } from '../../hooks/use-selection';
-import { CustomTable } from '../../components/custom-table';
-import { CustomSearch } from '../../components/custom-search';
-import { subscriptionTypesHeadCells } from '../../seed/table-headers';
-import PencilIcon from '@heroicons/react/24/outline/PencilIcon';
-import { CREATE, UPDATE, filterItems } from '../../utils/constant';
-import { FormDialog } from '../../components/form-dialog';
-import { subscriptionTypeFields } from '../../seed/form-fields';
-import { getAllPackagesByCategoryUrl, updatePackagesUrl } from '../../seed/url';
-import { webGetRequest } from '../../services/api-service';
-import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon';
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  Box,
+  Button,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  MenuItem,
+  Paper,
+  Skeleton,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+} from "@mui/material";
+import {
+  PencilIcon,
+  PlusIcon,
+  TrashIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import {
+  createSubPackageUrl,
+  deleteSubPackageUrl,
+  getAllPackagesByCategoryUrl,
+  updatePackagesUrl,
+} from "../../seed/url";
+import {
+  webDeleteRequest,
+  webGetRequest,
+  webPostRequest,
+  webPutRequest,
+} from "../../services/api-service";
+import { CustomAlert } from "../../components/custom-alert";
 
-const usePackagesIds = (packages) => {
-    return React.useMemo(
-        () => {
-            return packages.map((customer) => customer.id);
-        },
-        [packages]
-    );
+const TYPE_META = {
+  subscription: { label: "Subscription", color: "primary" },
+  consultation: { label: "Consultation", color: "info" },
+  shop: { label: "Shop", color: "default" },
+  ai: { label: "AI", color: "secondary" },
 };
 
-function ViewSubscriptionType({ open, handleClose, selected }) {
-    const [action, setAction] = React.useState(CREATE)
-    const [rowsPerPage, setRowsPerPage] = React.useState(5);
-    const [packages, setPackages] = React.useState({
-        page: 1,
-        total_results: 0,
-        total_pages: 0,
-        results: []
-    });
-    const [isLoading, setIsLoading] = React.useState(true)
-    const packagesIds = usePackagesIds(packages.results);
-    const subscriptionSelection = useSelection(packagesIds);
-    const [openCreateDialog, setOpenCreateDialog] = React.useState(false);
-    const values = [
-        {
-            packageId: action === UPDATE ? subscriptionSelection?.selected[0]?.id : 0,
-            BusinessCategoryId: selected.id,
-            name: action === UPDATE ? subscriptionSelection?.selected[0]?.name : "",
-            amount: action === UPDATE ? subscriptionSelection?.selected[0]?.amount : 0,
-            active_days: action === UPDATE ? subscriptionSelection?.selected[0]?.active_days : "",
-            eng_package_description: action === UPDATE ? subscriptionSelection?.selected[0]?.eng_package_description : "",
-            status: action === UPDATE ? subscriptionSelection?.selected[0]?.status : "",
-            apple_pay_product_id: action === UPDATE ? subscriptionSelection?.selected[0]?.apple_pay_product_id : "",
-            IOS_description: action === UPDATE ? subscriptionSelection?.selected[0]?.IOS_description : "",
-            IOS_title: action === UPDATE ? subscriptionSelection?.selected[0]?.IOS_title : "",
-            IOS_currency: action === UPDATE ? subscriptionSelection?.selected[0]?.IOS_currency : "",
-            IOS_price: action === UPDATE ? subscriptionSelection?.selected[0]?.IOS_price : "",
-            IOS_price_string: action === UPDATE ? subscriptionSelection?.selected[0]?.IOS_price_string : "",
-        }
-    ]
+const fmtTzs = (n) => "TZS " + Number(n || 0).toLocaleString("en-US", { maximumFractionDigits: 0 });
+const get = (url) => new Promise((res, rej) => webGetRequest(url, res, rej));
+const post = (url, body) => new Promise((res, rej) => webPostRequest(url, body, res, rej));
+const put = (url, body) => new Promise((res, rej) => webPutRequest(url, body, res, rej));
+const del = (url) => new Promise((res, rej) => webDeleteRequest(url, res, rej));
 
-    const fetcher = React.useCallback(
-        (page) => {
-            webGetRequest(
-                getAllPackagesByCategoryUrl + selected.id,
-                (data) => {
-                    setPackages({
-                        page: 1,
-                        total_results: data.length,
-                        total_pages: 1,
-                        results: data,
-                    })
-                    setIsLoading(false)
-                },
-                (error) => {
-                    setPackages({
-                        page: 1,
-                        total_results: 0,
-                        total_pages: 0,
-                        results: [],
-                    })
-                    setIsLoading(false)
-                },
-            )
-        },
-        [selected]
-    );
+export default function ViewSubscriptionType({ open, handleClose, selected, onChanged }) {
+  const [packages, setPackages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState(null); // { pkg } | null
+  const [deleting, setDeleting] = useState(null);
+  const [alert, setAlert] = useState({ open: false, severity: "success", message: "" });
 
-    React.useEffect(() => {
-        fetcher(1)
-    }, [fetcher])
+  const notify = (severity, message) => setAlert({ open: true, severity, message });
 
-    const handlePageChange = React.useCallback(
-        (event, value) => {
-            fetcher(value + 1)
-        },
-        [fetcher]
-    );
-
-    const handleRowsPerPageChange = React.useCallback(
-        (event) => {
-            setRowsPerPage(event.target.value);
-        },
-        []
-    );
-
-    const handleClickOpenCreateDialog = () => {
-        setOpenCreateDialog(true)
+  const load = useCallback(async () => {
+    if (!selected?.id) return;
+    setLoading(true);
+    try {
+      const data = await get(getAllPackagesByCategoryUrl + selected.id);
+      setPackages(Array.isArray(data) ? data : []);
+    } catch {
+      setPackages([]);
+      notify("error", "Failed to load packages");
+    } finally {
+      setLoading(false);
     }
+  }, [selected?.id]);
 
-    const handleCloseCreateDialog = () => {
-        setOpenCreateDialog(false)
-        fetcher(1)
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const handleSave = async (values) => {
+    try {
+      if (values.id) await put(updatePackagesUrl + values.id, values);
+      else await post(createSubPackageUrl, { ...values, afyachap_service_id: selected.id });
+      notify("success", values.id ? "Package updated" : "Package created");
+      setForm(null);
+      load();
+      onChanged?.();
+    } catch (e) {
+      notify("error", e?.response?.data?.message || "Save failed");
     }
+  };
 
-    const contentPopoverItems = [
-        {
-            id: 'edit',
-            label: 'Edit',
-            icon: <SvgIcon fontSize="small" sx={{ color: "text.primary" }}><PencilIcon /></SvgIcon>,
-            onClick: () => {
-                if (subscriptionSelection?.selected[0]?.id) {
-                    setAction(UPDATE)
-                    handleClickOpenCreateDialog()
-                }
-            },
-        },
-    ]
+  const handleDelete = async () => {
+    try {
+      await del(deleteSubPackageUrl + deleting.id);
+      notify("success", "Package deleted");
+      setDeleting(null);
+      load();
+      onChanged?.();
+    } catch (e) {
+      notify("error", e?.response?.data?.message || "Delete failed");
+    }
+  };
 
-    return (
-        <Dialog
-            open={open}
-            onClose={handleClose}
-            fullScreen
-            PaperProps={{
-                style: {
-                    boxShadow: "none"
-                },
-            }}
-        >
-            <DialogActions>
-                <IconButton
-                    edge="start"
-                    color="inherit"
-                    aria-label="close"
-                    onClick={() => {
-                        handleClose()
-                    }}
-                >
-                    <SvgIcon fontSize='large'>
-                        <XMarkIcon />
-                    </SvgIcon>
-                </IconButton>
-            </DialogActions>
-            <DialogContent>
-                {openCreateDialog && 
-                    <FormDialog
-                        open={openCreateDialog}
-                        handleClose={handleCloseCreateDialog}
-                        dialogTitle={"Subscription Type"}
-                        action={action}
-                        fields={subscriptionTypeFields}
-                        values={values}
-                        url={updatePackagesUrl + subscriptionSelection?.selected[0]?.id}
-                        isWebServerRequest={true}
-                    />
-                }
-                <Box
-                    component="main"
-                    sx={{
-                        flexGrow: 1,
-                        pt: 2,
-                        pb: 8
-                    }}
-                >
-                    <Container maxWidth={false}>
-                        <Stack spacing={2}>
-                            <Stack
-                                direction="row"
-                                justifyContent="space-between"
-                                spacing={4}
-                            >
-                                <Stack spacing={1}>
-                                    <Typography variant="h4">
-                                        {selected.name}
-                                    </Typography>
-                                </Stack>
-                            </Stack>
-                            <CustomSearch
-                                popoverItems={filterItems}
-                            />
-                            <CustomTable
-                                count={packages.total_results}
-                                items={packages.results}
-                                onPageChange={handlePageChange}
-                                onRowsPerPageChange={handleRowsPerPageChange}
-                                onSelectOne={subscriptionSelection.handleSelectOne}
-                                page={packages.page >= 1 ? packages.page - 1 : packages.page}
-                                rowsPerPage={rowsPerPage}
-                                selected={subscriptionSelection.selected}
-                                headCells={subscriptionTypesHeadCells}
-                                popoverItems={contentPopoverItems}
-                                isLoading={isLoading}
-                            />
-                        </Stack>
-                    </Container>
-                </Box>
-            </DialogContent>
-        </Dialog>
-    );
+  const togglePackage = async (p) => {
+    const next = String(p.STATUS || p.status || "ACTIVE").toUpperCase() === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+    try {
+      await put(updatePackagesUrl + p.id, {
+        name: p.name,
+        amount: p.amount,
+        active_days: p.active_days,
+        ai_access_days: p.ai_access_days ?? 0,
+        status: next,
+      });
+      notify("success", `${p.name} marked ${next === "ACTIVE" ? "used" : "not used"}`);
+      load();
+      onChanged?.();
+    } catch (e) {
+      notify("error", e?.response?.data?.message || "Update failed");
+    }
+  };
+
+  const meta = TYPE_META[selected?.package_type] || TYPE_META.subscription;
+
+  return (
+    <Dialog open={open} onClose={handleClose} fullScreen>
+      <DialogActions>
+        <IconButton edge="start" color="inherit" aria-label="close" onClick={handleClose}>
+          <XMarkIcon width={24} />
+        </IconButton>
+      </DialogActions>
+      <DialogContent>
+        <Box mb={3} display="flex" justifyContent="space-between" alignItems="center" gap={2} flexWrap="wrap">
+          <Box display="flex" alignItems="center" gap={1.5}>
+            <Typography variant="h5" fontWeight={700}>{selected?.name}</Typography>
+            <Chip size="small" label={meta.label} color={meta.color} />
+          </Box>
+          <Button variant="contained" startIcon={<PlusIcon width={18} />} onClick={() => setForm({ pkg: null })}>
+            Add package
+          </Button>
+        </Box>
+
+        <Paper>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Package</TableCell>
+                  <TableCell align="right">Amount</TableCell>
+                  <TableCell>Duration</TableCell>
+                  <TableCell>Used</TableCell>
+                  <TableCell align="right">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {loading &&
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell colSpan={5}><Skeleton /></TableCell>
+                    </TableRow>
+                  ))}
+                {!loading &&
+                  packages.map((p) => (
+                    <TableRow key={p.id} hover>
+                      <TableCell fontWeight={600}>{p.name}</TableCell>
+                      <TableCell align="right" sx={{ fontVariantNumeric: "tabular-nums" }}>{fmtTzs(p.amount)}</TableCell>
+                      <TableCell>{p.active_days > 0 ? `${p.active_days}d` : "—"}</TableCell>
+                      <TableCell>
+                        <Switch
+                          size="small"
+                          checked={String(p.STATUS || p.status || "ACTIVE").toUpperCase() === "ACTIVE"}
+                          onChange={() => togglePackage(p)}
+                        />
+                      </TableCell>
+                      <TableCell align="right">
+                        <IconButton size="small" title="Edit" onClick={() => setForm({ pkg: p })}><PencilIcon width={18} /></IconButton>
+                        <IconButton size="small" title="Delete" color="error" onClick={() => setDeleting(p)}><TrashIcon width={18} /></IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                {!loading && !packages.length && (
+                  <TableRow>
+                    <TableCell colSpan={5} align="center" sx={{ py: 5 }}>
+                      <Typography color="text.secondary">No packages in this category yet.</Typography>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+      </DialogContent>
+
+      {form && <PackageDialog initial={form.pkg} onClose={() => setForm(null)} onSave={handleSave} />}
+
+      <Dialog open={!!deleting} onClose={() => setDeleting(null)}>
+        <DialogTitle>Delete package?</DialogTitle>
+        <DialogContent>
+          <Typography>This deletes <b>{deleting?.name}</b>. This cannot be undone.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleting(null)}>Cancel</Button>
+          <Button color="error" onClick={handleDelete}>Delete</Button>
+        </DialogActions>
+      </Dialog>
+
+      <CustomAlert
+        openAlert={alert.open}
+        severity={alert.severity}
+        severityMessage={alert.message}
+        handleCloseAlert={() => setAlert((a) => ({ ...a, open: false }))}
+      />
+    </Dialog>
+  );
 }
 
-export default ViewSubscriptionType
+function PackageDialog({ initial, onClose, onSave }) {
+  const [name, setName] = useState(initial?.name || "");
+  const [amount, setAmount] = useState(initial?.amount ?? "");
+  const [days, setDays] = useState(initial?.active_days ?? "");
+  const [status, setStatus] = useState(String(initial?.STATUS || initial?.status || "ACTIVE").toUpperCase());
+
+  const submit = () => {
+    if (!name.trim()) return;
+    onSave({
+      id: initial?.id,
+      name: name.trim(),
+      amount: Number(amount || 0),
+      active_days: Number(days || 0),
+      status,
+    });
+  };
+
+  return (
+    <Dialog open onClose={onClose} fullWidth maxWidth="xs">
+      <DialogTitle>{initial ? "Edit package" : "Add package"}</DialogTitle>
+      <DialogContent>
+        <Box display="grid" gap={2} mt={1}>
+          <TextField label="Name" value={name} onChange={(e) => setName(e.target.value)} fullWidth autoFocus />
+          <TextField label="Amount (TZS)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} inputProps={{ min: 0 }} fullWidth />
+          <TextField label="Duration (days)" type="number" value={days} onChange={(e) => setDays(e.target.value)} inputProps={{ min: 0 }} fullWidth />
+          <TextField select label="Status" value={status} onChange={(e) => setStatus(e.target.value)} fullWidth>
+            <MenuItem value="ACTIVE">Active</MenuItem>
+            <MenuItem value="INACTIVE">Inactive</MenuItem>
+          </TextField>
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button variant="contained" onClick={submit} disabled={!name.trim()}>
+          {initial ? "Save" : "Create"}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
