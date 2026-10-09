@@ -248,7 +248,13 @@ function CategoryDialog({ initial, onClose, onSave }) {
 
   const submit = () => {
     if (!name.trim()) return;
-    onSave({ id: initial?.id, name: name.trim(), description, package_type: derivedType });
+    onSave({
+      id: initial?.id,
+      name: name.trim(),
+      description,
+      package_type: derivedType,
+      status: initial?.status || "ACTIVE",
+    });
   };
 
   return (
