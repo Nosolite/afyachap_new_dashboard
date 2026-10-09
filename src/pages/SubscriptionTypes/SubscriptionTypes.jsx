@@ -9,7 +9,6 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
-  MenuItem,
   Paper,
   Skeleton,
   Switch,
@@ -233,14 +232,23 @@ export default function SubscriptionTypes() {
   );
 }
 
+const typeFromName = (n) => {
+  const v = (n || "").toLowerCase();
+  if (/consult|daktari|doctor|chat|session/.test(v)) return "consultation";
+  if (/shop|store|mall|chapmall|product|bidhaa/.test(v)) return "shop";
+  if (/ai|artificial|intelligence|smart/.test(v)) return "ai";
+  return "subscription";
+};
+
 function CategoryDialog({ initial, onClose, onSave }) {
   const [name, setName] = useState(initial?.name || "");
   const [description, setDescription] = useState(initial?.description || "");
-  const [type, setType] = useState(initial?.package_type || "subscription");
+
+  const derivedType = initial?.package_type || typeFromName(name);
 
   const submit = () => {
     if (!name.trim()) return;
-    onSave({ id: initial?.id, name: name.trim(), description, package_type: type });
+    onSave({ id: initial?.id, name: name.trim(), description, package_type: derivedType });
   };
 
   return (
@@ -250,12 +258,9 @@ function CategoryDialog({ initial, onClose, onSave }) {
         <Box display="grid" gap={2} mt={1}>
           <TextField label="Name" value={name} onChange={(e) => setName(e.target.value)} fullWidth autoFocus />
           <TextField label="Description" value={description} onChange={(e) => setDescription(e.target.value)} fullWidth multiline minRows={2} />
-          <TextField select label="Type" value={type} onChange={(e) => setType(e.target.value)} fullWidth>
-            <MenuItem value="subscription">Subscription</MenuItem>
-            <MenuItem value="consultation">Consultation</MenuItem>
-            <MenuItem value="shop">Shop</MenuItem>
-            <MenuItem value="ai">AI</MenuItem>
-          </TextField>
+          <Typography variant="body2" color="text.secondary">
+            Type: <b>{TYPE_META[derivedType]?.label || derivedType}</b>
+          </Typography>
         </Box>
       </DialogContent>
       <DialogActions>

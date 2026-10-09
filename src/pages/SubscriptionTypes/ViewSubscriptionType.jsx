@@ -113,7 +113,6 @@ export default function ViewSubscriptionType({ open, handleClose, selected, onCh
         name: p.name,
         amount: p.amount,
         active_days: p.active_days,
-        ai_access_days: p.ai_access_days ?? 0,
         status: next,
       });
       notify("success", `${p.name} marked ${next === "ACTIVE" ? "used" : "not used"}`);
