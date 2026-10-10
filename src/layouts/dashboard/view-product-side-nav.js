@@ -1,6 +1,7 @@
 import React from 'react';
-import { Box, Chip, Drawer, IconButton, Rating, SvgIcon, Table, TableBody, TableCell, TableRow, Typography } from '@mui/material';
+import { Box, Chip, IconButton, Rating, SvgIcon, Table, TableBody, TableCell, TableRow, Typography } from '@mui/material';
 import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon';
+import { ResponsiveDetailDrawer } from '../../components/responsive-detail-drawer';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
@@ -9,17 +10,7 @@ export const ViewProductSideNav = (props) => {
     const productSideNav = useSelector((state) => state.ViewPaymentSideNavReducer);
 
     return (
-        <Drawer
-            anchor='right'
-            open={open}
-            onClose={onClose}
-            PaperProps={{
-                sx: {
-                    backgroundColor: 'neutral.100',
-                    width: 300
-                }
-            }}
-        >
+        <ResponsiveDetailDrawer open={open} onClose={onClose}>
             <Box
                 sx={{
                     display: "flex",
@@ -134,7 +125,7 @@ export const ViewProductSideNav = (props) => {
                     </TableRow>
                 </TableBody>
             </Table>
-        </Drawer>
+        </ResponsiveDetailDrawer>
     );
 
 };

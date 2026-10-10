@@ -27,6 +27,7 @@ import {
 } from '../../seed/url'
 import { CustomAlert } from '../../components/custom-alert'
 import { IOSSwitch } from '../../components/IOSSwitch'
+import { PageHeader } from '../../components/page-header'
 
 const schema = Yup.object().shape({
   provider: Yup.string().required('Provider is required'),
@@ -196,12 +197,10 @@ function HealthAISettings() {
       >
         <Container maxWidth={false}>
           <Stack spacing={2}>
-            <Stack spacing={1}>
-              <Typography variant="h4">Health AI Settings</Typography>
-              <Typography variant="body2" color="text.secondary">
-                Switch provider/model, control free daily limits, and review usage.
-              </Typography>
-            </Stack>
+            <PageHeader
+              title="Health AI Settings"
+              subtitle="Switch provider/model, control free daily limits, and review usage."
+            />
 
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6} md={3}>

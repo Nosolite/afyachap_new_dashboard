@@ -1,5 +1,6 @@
 import React from 'react'
-import { Autocomplete, Avatar, Button, Dialog, DialogActions, DialogContent, DialogTitle, List, ListItem, ListItemAvatar, ListItemText, Slide, TextField, Typography, } from '@mui/material'
+import { Autocomplete, Avatar, Button, DialogActions, DialogContent, DialogTitle, List, ListItem, ListItemAvatar, ListItemText, Slide, TextField, Typography, } from '@mui/material'
+import { AppDialog } from '../../components/app-dialog'
 import { getAllUsersUrl } from '../../seed/url'
 import { authPostRequest } from '../../services/api-service'
 
@@ -21,7 +22,7 @@ function AssignRole({
     const [error, setError] = React.useState("")
 
     return (
-        <Dialog
+        <AppDialog
             open={open}
             TransitionComponent={Transition}
             // onClose={handleClose}
@@ -131,7 +132,7 @@ function AssignRole({
                     }
                 </Button>
             </DialogActions>
-        </Dialog>
+        </AppDialog>
     )
 }
 

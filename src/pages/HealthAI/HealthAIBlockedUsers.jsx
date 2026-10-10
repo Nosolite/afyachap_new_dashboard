@@ -1,5 +1,6 @@
 import React from 'react'
-import { Box, Container, Stack, SvgIcon, Typography } from '@mui/material'
+import { Box, Container, Stack, SvgIcon } from '@mui/material'
+import { PageHeader } from '../../components/page-header'
 import CheckCircleIcon from '@heroicons/react/24/outline/CheckCircleIcon'
 import { useSelection } from '../../hooks/use-selection'
 import { CustomTable } from '../../components/custom-table'
@@ -157,12 +158,10 @@ function HealthAIBlockedUsers() {
       >
         <Container maxWidth={false}>
           <Stack spacing={2}>
-            <Stack spacing={1}>
-              <Typography variant="h4">Health AI Blocked Users</Typography>
-              <Typography variant="body2" color="text.secondary">
-                Users blocked from the Health AI chat feature.
-              </Typography>
-            </Stack>
+            <PageHeader
+              title="Health AI Blocked Users"
+              subtitle="Users blocked from the Health AI chat feature."
+            />
             <CustomSearch popoverItems={filterItems} handleSearch={handleSearch} />
             <CustomTable
               order={order}

@@ -1,5 +1,6 @@
 import React from 'react'
 import { Box, Button, Card, CardContent, CardHeader, CircularProgress, Container, Divider, Stack, Table, TableBody, TableCell, TableRow, Typography } from '@mui/material'
+import { PageHeader } from '../../components/page-header';
 import { postRequest } from '../../services/api-service';
 import { getUsersStatisticsUrl } from '../../seed/url';
 import { capitalizeFirstLetter, formatNumber } from '../../utils/constant';
@@ -51,17 +52,7 @@ function UserReports() {
     >
       <Container maxWidth={false}>
         <Stack spacing={1}>
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            spacing={4}
-          >
-            <Stack spacing={1}>
-              <Typography variant="h4">
-                Report
-              </Typography>
-            </Stack>
-          </Stack>
+          <PageHeader title="Report" />
           <Card
             elevation={1}
           >

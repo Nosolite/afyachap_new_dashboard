@@ -1,5 +1,6 @@
 import React from 'react'
 import { Box, Button, Card, CardActions, CardContent, CardHeader, CircularProgress, Container, Divider, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material'
+import { PageHeader } from '../../components/page-header';
 import { getAllMobileConfigurationUrl, getContentSettingsUrl, updateContentSettingUrl } from '../../seed/url';
 import { authGetRequest, postRequest } from '../../services/api-service';
 import { Form, Formik } from 'formik'
@@ -119,17 +120,7 @@ function Settings() {
     >
       <Container maxWidth={false}>
         <Stack spacing={1}>
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            spacing={4}
-          >
-            <Stack spacing={1}>
-              <Typography variant="h4">
-                Settings
-              </Typography>
-            </Stack>
-          </Stack>
+          <PageHeader title="Settings" />
           <Formik
             enableReinitialize
             initialValues={mobileConfiguration}

@@ -1,6 +1,6 @@
 import React from 'react'
-import { Autocomplete, Avatar, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, IconButton, ImageList, ImageListItem, ImageListItemBar, List, ListItem, ListItemAvatar, ListItemText, Slide, SvgIcon, Tab, Table, TableBody, TableCell, TableRow, Tabs, TextField, Typography, } from '@mui/material'
-import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon';
+import { Autocomplete, Avatar, Box, Button, CircularProgress, DialogContent, IconButton, ImageList, ImageListItem, ImageListItemBar, List, ListItem, ListItemAvatar, ListItemText, Slide, SvgIcon, Tab, Table, TableBody, TableCell, TableRow, Tabs, TextField, Typography, } from '@mui/material'
+import { AppDialog, DialogCloseBar } from '../../components/app-dialog';
 import EyeIcon from '@heroicons/react/24/outline/EyeIcon';
 import { Scrollbar } from '../../components/scrollbar';
 import { capitalizeFirstLetter, openPdfInNewTab } from '../../utils/constant';
@@ -93,32 +93,23 @@ function ViewDoctorApplication({ open, handleClose, selected }) {
     }, [fetcher])
 
     return (
-        <Dialog
+        <AppDialog
             open={open}
             TransitionComponent={Transition}
             aria-describedby="form-dialog"
             fullWidth={true}
             maxWidth={"md"}
         >
-            <DialogActions>
-                <IconButton
-                    edge="start"
-                    color="inherit"
-                    onClick={() => {
-                        handleClose()
-                    }}
-                    aria-label="close"
-                >
-                    <SvgIcon fontSize='small'>
-                        <XMarkIcon />
-                    </SvgIcon>
-                </IconButton>
-            </DialogActions>
+            <DialogCloseBar
+                onClose={handleClose}
+                iconSize="small"
+                title="Doctor Application"
+            />
             <DialogContent>
                 <Tabs
                     onChange={handleTabChange}
                     value={currentTab}
-                    sx={{ mt: -4, ml: 3, mb: 3 }}
+                    sx={{ mt: { xs: 0, md: -4 }, ml: { xs: 0, md: 3 }, mb: { xs: 1, md: 3 } }}
                     variant='scrollable'
                     scrollButtons="auto"
                 >
@@ -320,7 +311,7 @@ function ViewDoctorApplication({ open, handleClose, selected }) {
                     }
                 </Scrollbar>
             </DialogContent>
-        </Dialog>
+        </AppDialog>
     )
 }
 

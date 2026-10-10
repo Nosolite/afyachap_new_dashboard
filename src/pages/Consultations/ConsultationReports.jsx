@@ -1,5 +1,6 @@
 import React from 'react'
 import { Box, Button, Card, CardContent, CardHeader, CircularProgress, Container, Divider, Grid, Stack, SvgIcon, Tab, Table, TableBody, TableCell, TableRow, Tabs, Typography } from '@mui/material'
+import { PageHeader } from '../../components/page-header'
 import CalendarIcon from '@heroicons/react/24/outline/CalendarIcon'
 import ChevronDownIcon from '@heroicons/react/24/outline/ChevronDownIcon'
 import dayjs from 'dayjs'
@@ -83,17 +84,7 @@ function ConsultationReports() {
       }
       <Container maxWidth={false}>
         <Stack spacing={2}>
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            spacing={4}
-          >
-            <Stack spacing={1}>
-              <Typography variant="h4">
-                Report
-              </Typography>
-            </Stack>
-          </Stack>
+          <PageHeader title="Report" />
           <Box
             sx={{
               display: "flex",

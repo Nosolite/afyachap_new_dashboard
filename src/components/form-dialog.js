@@ -10,6 +10,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { MuiColorInput } from 'mui-color-input';
 import { CREATE } from '../utils/constant';
 import CustomEditor from './custom-editor';
+import { useIsMobile } from '../hooks/use-is-mobile';
+import { MobileScreenHeader } from './mobile/mobile-screen-header';
+import { MobileStickyFooter } from './mobile/mobile-sticky-footer';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />
@@ -26,6 +29,7 @@ export const FormDialog = ({
     isWebServerRequest = false,
 }) => {
     const dispatch = useDispatch();
+    const isMobile = useIsMobile();
     const [isLoading, setIsLoading] = React.useState(false);
     const [options, setOptions] = React.useState([]);
     const [value, setValue] = React.useState("");
@@ -61,6 +65,7 @@ export const FormDialog = ({
             TransitionComponent={Transition}
             aria-describedby="form-dialog"
             fullWidth={true}
+            fullScreen={isMobile}
             maxWidth={"md"}
         >
             <Formik
@@ -123,24 +128,34 @@ export const FormDialog = ({
                     <Form
                         noValidate
                         autoComplete="off"
+                        style={isMobile ? { display: 'flex', flexDirection: 'column', minHeight: '100%' } : undefined}
                     >
-                        <DialogActions>
-                            <IconButton
-                                edge="start"
-                                color="inherit"
-                                aria-label="close"
-                                disabled={isSubmitting}
-                                onClick={() => {
-                                    handleClose()
-                                }}
-                            >
-                                <SvgIcon fontSize='small'>
-                                    <XMarkIcon />
-                                </SvgIcon>
-                            </IconButton>
-                        </DialogActions>
-                        <DialogTitle>{`${action} ${dialogTitle}`}</DialogTitle>
-                        <DialogContent>
+                        {isMobile ?
+                            <MobileScreenHeader
+                                title={`${action} ${dialogTitle}`}
+                                onClose={handleClose}
+                                closeDisabled={isSubmitting}
+                            /> :
+                            <>
+                                <DialogActions>
+                                    <IconButton
+                                        edge="start"
+                                        color="inherit"
+                                        aria-label="close"
+                                        disabled={isSubmitting}
+                                        onClick={() => {
+                                            handleClose()
+                                        }}
+                                    >
+                                        <SvgIcon fontSize='small'>
+                                            <XMarkIcon />
+                                        </SvgIcon>
+                                    </IconButton>
+                                </DialogActions>
+                                <DialogTitle>{`${action} ${dialogTitle}`}</DialogTitle>
+                            </>
+                        }
+                        <DialogContent sx={isMobile ? { flex: '1 1 auto', px: 2, pb: 3 } : undefined}>
                             {fields.map((field, index) => {
 
                                 return (
@@ -405,22 +420,39 @@ export const FormDialog = ({
                                 {error}
                             </Typography>
                         </DialogContent>
-                        <DialogActions>
-                            <Button
-                                onClick={handleClose}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                type="submit"
-                                disabled={isSubmitting}
-                            >
-                                {isSubmitting ?
-                                    "Loading..." :
-                                    `${action}`
-                                }
-                            </Button>
-                        </DialogActions>
+                        {isMobile ?
+                            <MobileStickyFooter>
+                                <Button
+                                    fullWidth
+                                    size="large"
+                                    variant="contained"
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    sx={{ color: 'common.white' }}
+                                >
+                                    {isSubmitting ?
+                                        "Saving..." :
+                                        `${action}`
+                                    }
+                                </Button>
+                            </MobileStickyFooter> :
+                            <DialogActions>
+                                <Button
+                                    onClick={handleClose}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ?
+                                        "Loading..." :
+                                        `${action}`
+                                    }
+                                </Button>
+                            </DialogActions>
+                        }
                     </Form>
                 )}
             </Formik>

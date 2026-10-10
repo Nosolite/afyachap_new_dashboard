@@ -25,8 +25,8 @@ import {
   PencilIcon,
   PlusIcon,
   TrashIcon,
-  XMarkIcon,
 } from "@heroicons/react/24/outline";
+import { AppDialog, DialogCloseBar } from "../../components/app-dialog";
 import {
   createSubPackageUrl,
   deleteSubPackageUrl,
@@ -126,12 +126,8 @@ export default function ViewSubscriptionType({ open, handleClose, selected, onCh
   const meta = TYPE_META[selected?.package_type] || TYPE_META.subscription;
 
   return (
-    <Dialog open={open} onClose={handleClose} fullScreen>
-      <DialogActions>
-        <IconButton edge="start" color="inherit" aria-label="close" onClick={handleClose}>
-          <XMarkIcon width={24} />
-        </IconButton>
-      </DialogActions>
+    <AppDialog open={open} onClose={handleClose} fullScreen>
+      <DialogCloseBar onClose={handleClose} iconSize="medium" title={selected?.name} />
       <DialogContent>
         <Box mb={3} display="flex" justifyContent="space-between" alignItems="center" gap={2} flexWrap="wrap">
           <Box display="flex" alignItems="center" gap={1.5}>
@@ -213,7 +209,7 @@ export default function ViewSubscriptionType({ open, handleClose, selected, onCh
         severityMessage={alert.message}
         handleCloseAlert={() => setAlert((a) => ({ ...a, open: false }))}
       />
-    </Dialog>
+    </AppDialog>
   );
 }
 

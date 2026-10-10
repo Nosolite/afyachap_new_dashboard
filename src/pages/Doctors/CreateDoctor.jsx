@@ -1,6 +1,6 @@
 import React from 'react'
-import { Avatar, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Slide, Step, StepLabel, Stepper, SvgIcon, Typography, useMediaQuery } from '@mui/material'
-import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon';
+import { Avatar, Box, Button, DialogContent, DialogTitle, Slide, Step, StepLabel, Stepper, SvgIcon, Typography, useMediaQuery } from '@mui/material'
+import { AppDialog, DialogCloseBar } from '../../components/app-dialog';
 import CheckIcon from '@heroicons/react/24/outline/CheckIcon';
 import { Scrollbar } from '../../components/scrollbar';
 import DoctorCreationForm from './DoctorCreationForm';
@@ -93,28 +93,19 @@ function CreateDoctor({ open, handleClose }) {
     ]
 
     return (
-        <Dialog
+        <AppDialog
             open={open}
             TransitionComponent={Transition}
             aria-describedby="form-dialog"
             fullWidth={true}
             maxWidth={"lg"}
         >
-            <DialogActions>
-                <IconButton
-                    edge="start"
-                    color="inherit"
-                    onClick={() => {
-                        handleClose()
-                    }}
-                    aria-label="close"
-                >
-                    <SvgIcon fontSize='small'>
-                        <XMarkIcon />
-                    </SvgIcon>
-                </IconButton>
-            </DialogActions>
-            <DialogTitle>
+            <DialogCloseBar
+                onClose={handleClose}
+                iconSize="small"
+                title="Create Doctor"
+            />
+            <DialogTitle sx={{ display: { xs: 'none', md: 'block' } }}>
                 Create Doctor
             </DialogTitle>
             <DialogContent>
@@ -194,7 +185,7 @@ function CreateDoctor({ open, handleClose }) {
                     </Scrollbar>
                 )}
             </DialogContent>
-        </Dialog>
+        </AppDialog>
     )
 }
 

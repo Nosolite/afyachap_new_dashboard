@@ -2,15 +2,11 @@ import React from "react";
 import {
   Box,
   Container,
-  Dialog,
-  DialogActions,
   DialogContent,
-  IconButton,
   Stack,
-  SvgIcon,
-  Typography,
 } from "@mui/material";
-import XMarkIcon from "@heroicons/react/24/outline/XMarkIcon";
+import { AppDialog, DialogCloseBar } from "../../components/app-dialog";
+import { PageHeader } from "../../components/page-header";
 import { useSelection } from "../../hooks/use-selection";
 import { CustomTable } from "../../components/custom-table";
 import { CustomSearch } from "../../components/custom-search";
@@ -120,30 +116,22 @@ function ViewParticipants({ open, handleClose, selected }) {
   const contentPopoverItems = [];
 
   return (
-    <Dialog
+    <AppDialog
       open={open}
       onClose={handleClose}
       fullScreen
+      disableMobileContentGutters
       PaperProps={{
         style: {
           boxShadow: "none",
         },
       }}
     >
-      <DialogActions>
-        <IconButton
-          edge="start"
-          color="inherit"
-          aria-label="close"
-          onClick={() => {
-            handleClose();
-          }}
-        >
-          <SvgIcon fontSize="large">
-            <XMarkIcon />
-          </SvgIcon>
-        </IconButton>
-      </DialogActions>
+      <DialogCloseBar
+        onClose={handleClose}
+        iconSize="large"
+        title={selected.title}
+      />
       <DialogContent>
         <Box
           component="main"
@@ -155,11 +143,7 @@ function ViewParticipants({ open, handleClose, selected }) {
         >
           <Container maxWidth="xl">
             <Stack spacing={2}>
-              <Stack direction="row" justifyContent="space-between" spacing={4}>
-                <Stack spacing={1}>
-                  <Typography variant="h4">{selected.title}</Typography>
-                </Stack>
-              </Stack>
+              <PageHeader title={selected.title} inDialog />
               <CustomSearch
                 popoverItems={filterItems}
                 handleSearch={handleSearch}
@@ -188,7 +172,7 @@ function ViewParticipants({ open, handleClose, selected }) {
           </Container>
         </Box>
       </DialogContent>
-    </Dialog>
+    </AppDialog>
   );
 }
 

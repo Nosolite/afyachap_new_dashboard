@@ -49,6 +49,7 @@ import XCircleIcon from "@heroicons/react/24/outline/XCircleIcon";
 import CalendarIcon from "@heroicons/react/24/outline/CalendarIcon";
 import CurrencyDollarIcon from "@heroicons/react/24/outline/CurrencyDollarIcon";
 import { CustomSearch } from "../../components/custom-search";
+import { AppDialog } from "../../components/app-dialog";
 import {
   adminSubscriptionAssignUrl,
   adminSubscriptionCancelUrl,
@@ -2385,7 +2386,7 @@ function ManualSubscriptions() {
         </DialogActions>
       </Dialog>
       {/* User Selection Dialog */}
-      <Dialog
+      <AppDialog
         open={selectionDialog.open}
         onClose={() =>
           setSelectionDialog({ open: false, options: [], searchedPhone: "" })
@@ -2480,7 +2481,7 @@ function ManualSubscriptions() {
             Cancel
           </Button>
         </DialogActions>
-      </Dialog>
+      </AppDialog>
     </Box>
   );
 }

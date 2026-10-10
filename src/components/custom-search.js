@@ -12,6 +12,9 @@ import { CustomPopOver } from "./custom-popover";
 import { usePopover } from "../hooks/use-popover";
 import AdjustmentsHorizontalIcon from "@heroicons/react/24/outline/AdjustmentsHorizontalIcon";
 import ChevronDownIcon from "@heroicons/react/24/outline/ChevronDownIcon";
+import { useIsMobile } from "../hooks/use-is-mobile";
+import { useDebouncedCallback } from "../hooks/use-debounced-callback";
+import { MobileSearchBar } from "./mobile/mobile-search-bar";
 
 const SEARCH_DEBOUNCE_MS = 2000;
 
@@ -54,50 +57,8 @@ const FilterButton = ({ selectedValue, items, disabled = false }) => {
   );
 };
 
-export const CustomSearch = ({
-  body,
-  handleBodyChange,
-  handleSearch,
-  selectedFilterValue,
-  popoverItems,
-  filters,
-}) => {
+const DesktopSearch = ({ body, handleBodyChange, onSearchChange, filterGroups }) => {
   const datePopOver = usePopover();
-  const debounceTimeoutRef = React.useRef(null);
-
-  const filterGroups = React.useMemo(() => {
-    if (filters?.length) {
-      return filters;
-    }
-    if (popoverItems && selectedFilterValue) {
-      return [{ selectedValue: selectedFilterValue, items: popoverItems }];
-    }
-    return [];
-  }, [filters, popoverItems, selectedFilterValue]);
-
-  React.useEffect(() => {
-    return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  const handleSearchChange = (event) => {
-    if (!handleSearch) {
-      return;
-    }
-
-    const value = event.target.value;
-
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-
-    debounceTimeoutRef.current = setTimeout(() => {
-      handleSearch({ target: { value } });
-    }, SEARCH_DEBOUNCE_MS);
-  };
 
   return (
     <>
@@ -137,7 +98,7 @@ export const CustomSearch = ({
             </InputAdornment>
           }
           sx={{ maxWidth: 500, borderRadius: 50 }}
-          onChange={handleSearchChange}
+          onChange={onSearchChange}
         />
         <Box
           boxShadow={1}
@@ -191,5 +152,57 @@ export const CustomSearch = ({
         </Box>
       </Card>
     </>
+  );
+};
+
+export const CustomSearch = ({
+  body,
+  handleBodyChange,
+  handleSearch,
+  selectedFilterValue,
+  popoverItems,
+  filters,
+}) => {
+  const isMobile = useIsMobile();
+
+  const filterGroups = React.useMemo(() => {
+    if (filters?.length) {
+      return filters;
+    }
+    if (popoverItems && selectedFilterValue) {
+      return [{ selectedValue: selectedFilterValue, items: popoverItems }];
+    }
+    return [];
+  }, [filters, popoverItems, selectedFilterValue]);
+
+  const debouncedSearch = useDebouncedCallback((value) => {
+    handleSearch?.({ target: { value } });
+  }, SEARCH_DEBOUNCE_MS);
+
+  const handleSearchChange = (event) => {
+    if (!handleSearch) {
+      return;
+    }
+    debouncedSearch(event.target.value);
+  };
+
+  if (isMobile) {
+    return (
+      <MobileSearchBar
+        body={body}
+        handleBodyChange={handleBodyChange}
+        onSearchChange={handleSearchChange}
+        filterGroups={filterGroups}
+      />
+    );
+  }
+
+  return (
+    <DesktopSearch
+      body={body}
+      handleBodyChange={handleBodyChange}
+      onSearchChange={handleSearchChange}
+      filterGroups={filterGroups}
+    />
   );
 };

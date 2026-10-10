@@ -1,6 +1,6 @@
 import React from 'react'
-import { Avatar, CircularProgress, Dialog, DialogActions, DialogContent, IconButton, ImageList, ImageListItem, List, ListItem, ListItemAvatar, ListItemText, Slide, Stack, SvgIcon, Tab, Table, TableBody, TableCell, TableRow, Tabs, Typography, } from '@mui/material'
-import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon';
+import { Avatar, CircularProgress, DialogContent, IconButton, ImageList, ImageListItem, List, ListItem, ListItemAvatar, ListItemText, Slide, Stack, SvgIcon, Tab, Table, TableBody, TableCell, TableRow, Tabs, Typography, } from '@mui/material'
+import { AppDialog, DialogCloseBar } from '../../components/app-dialog';
 import TrashIcon from '@heroicons/react/24/outline/TrashIcon';
 import { Scrollbar } from '../../components/scrollbar';
 import { getInitials } from '../../utils/get-initials';
@@ -69,32 +69,23 @@ function ViewContent({ open, handleClose, selected, setIsDeleting, setSeverityMe
     }
 
     return (
-        <Dialog
+        <AppDialog
             open={open}
             TransitionComponent={Transition}
             aria-describedby="form-dialog"
             fullWidth={true}
             maxWidth={"md"}
         >
-            <DialogActions>
-                <IconButton
-                    edge="start"
-                    color="inherit"
-                    onClick={() => {
-                        handleClose()
-                    }}
-                    aria-label="close"
-                >
-                    <SvgIcon fontSize='small'>
-                        <XMarkIcon />
-                    </SvgIcon>
-                </IconButton>
-            </DialogActions>
+            <DialogCloseBar
+                onClose={handleClose}
+                iconSize="small"
+                title="Content"
+            />
             <DialogContent>
                 <Tabs
                     onChange={handleTabChange}
                     value={currentTab}
-                    sx={{ mt: -4, ml: 3, mb: 3 }}
+                    sx={{ mt: { xs: 0, md: -4 }, ml: { xs: 0, md: 3 }, mb: { xs: 1, md: 3 } }}
                     variant='scrollable'
                     scrollButtons="auto"
                 >
@@ -283,7 +274,7 @@ function ViewContent({ open, handleClose, selected, setIsDeleting, setSeverityMe
                     }
                 </Scrollbar>
             </DialogContent>
-        </Dialog>
+        </AppDialog>
     )
 }
 

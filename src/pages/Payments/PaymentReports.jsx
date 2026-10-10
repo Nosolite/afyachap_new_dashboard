@@ -10,6 +10,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
+import { PageHeader } from "../../components/page-header";
 import { useSelection } from "../../hooks/use-selection";
 import { CustomTable } from "../../components/custom-table";
 import {
@@ -290,15 +291,7 @@ function PaymentReports() {
       )}
       <Container maxWidth={false}>
         <Stack spacing={4}>
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            flexWrap="wrap"
-            spacing={4}
-          >
-            <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-              Payment Summary
-            </Typography>
+          <PageHeader title="Payment Summary">
             <Button
               sx={{ color: "grey", display: "flex", alignItems: "center" }}
               variant="text"
@@ -318,7 +311,7 @@ function PaymentReports() {
                 "MMMM D, YYYY"
               )}`}
             </Button>
-          </Stack>
+          </PageHeader>
 
           <Stack
             direction="row"

@@ -9,8 +9,11 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers";
+import { useIsMobile } from "../hooks/use-is-mobile";
+import { MobileActionSheet } from "./mobile/mobile-action-sheet";
+import { MobileDateRangeSheet } from "./mobile/mobile-date-range-sheet";
 
-export const CustomPopOver = (props) => {
+const DesktopPopOver = (props) => {
   const lgUp = useMediaQuery((theme) => theme.breakpoints.up("lg"));
   const {
     anchorEl,
@@ -52,11 +55,10 @@ export const CustomPopOver = (props) => {
             <MenuItem
               key={index}
               onClick={(event) => {
-                // Pass the event object to the onClick handler
                 if (item.onClick) {
                   item.onClick(event);
                 }
-                onClose(); // Close the popover after the click
+                onClose();
               }}
             >
               {item.icon && <ListItemIcon>{item.icon}</ListItemIcon>}
@@ -96,4 +98,39 @@ export const CustomPopOver = (props) => {
       )}
     </Popover>
   );
+};
+
+export const CustomPopOver = (props) => {
+  const isMobile = useIsMobile();
+  const { open, onClose, popoverItems, from, to, handleBodyChange, title, selectedLabel } = props;
+
+  if (!isMobile) {
+    return <DesktopPopOver {...props} />;
+  }
+
+  if (popoverItems) {
+    return (
+      <MobileActionSheet
+        open={open}
+        onClose={onClose}
+        title={title}
+        items={popoverItems}
+        selectedLabel={selectedLabel}
+      />
+    );
+  }
+
+  if (from) {
+    return (
+      <MobileDateRangeSheet
+        open={open}
+        onClose={onClose}
+        from={from}
+        to={to}
+        onChange={handleBodyChange}
+      />
+    );
+  }
+
+  return null;
 };

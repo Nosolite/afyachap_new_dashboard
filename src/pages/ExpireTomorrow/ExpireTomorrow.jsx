@@ -1,5 +1,6 @@
 import React from 'react'
-import { Box, CircularProgress, Container, Stack, SvgIcon, Typography } from '@mui/material';
+import { Box, CircularProgress, Container, Stack, SvgIcon } from '@mui/material';
+import { PageHeader } from '../../components/page-header';
 import { useSelection } from '../../hooks/use-selection';
 import { CustomTable } from '../../components/custom-table';
 import { CustomSearch } from '../../components/custom-search';
@@ -116,18 +117,7 @@ function ExpireTomorrow() {
             >
                 <Container maxWidth={false}>
                     <Stack spacing={2}>
-                        <Stack
-                            direction="row"
-                            justifyContent="space-between"
-                            spacing={4}
-                            alignItems="center"
-                        >
-                            <Stack spacing={1}>
-                                <Typography variant="h4">
-                                    Accounts Expire Tomorrow
-                                </Typography>
-                            </Stack>
-                        </Stack>
+                        <PageHeader title="Accounts Expire Tomorrow" />
                         <CustomSearch
                             handleSearch={handleSearch}
                         />

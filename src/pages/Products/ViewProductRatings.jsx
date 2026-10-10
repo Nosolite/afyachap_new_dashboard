@@ -1,7 +1,8 @@
 import React from 'react'
-import { AppBar, Box, Button, Container, Dialog, DialogContent, IconButton, Stack, SvgIcon, Toolbar, Typography } from '@mui/material'
+import { AppBar, Box, Container, DialogContent, IconButton, Stack, SvgIcon, Toolbar } from '@mui/material'
 import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon';
-import PlusIcon from '@heroicons/react/24/outline/PlusIcon';
+import { AppDialog } from '../../components/app-dialog';
+import { PageHeader } from '../../components/page-header';
 import { useSelection } from '../../hooks/use-selection';
 import { CustomTable } from '../../components/custom-table';
 import { CustomSearch } from '../../components/custom-search';
@@ -181,10 +182,11 @@ function ViewProductRatings({ open, handleClose, selected }) {
     ]
 
     return (
-        <Dialog
+        <AppDialog
             open={open}
             onClose={handleClose}
             fullScreen
+            disableMobileContentGutters
             PaperProps={{
                 style: {
                     boxShadow: "none"
@@ -253,33 +255,11 @@ function ViewProductRatings({ open, handleClose, selected }) {
                     >
                         <Container maxWidth="xl">
                             <Stack spacing={2}>
-                                <Stack
-                                    direction="row"
-                                    justifyContent="space-between"
-                                    spacing={4}
-                                >
-                                    <Stack spacing={1}>
-                                        <Typography variant="h4">
-                                            Product Ratings Of {selected.product_name}
-                                        </Typography>
-                                    </Stack>
-                                    <div>
-                                        <Button
-                                            onClick={handleClickOpenCreateDialog}
-                                            startIcon={(
-                                                <SvgIcon fontSize="small">
-                                                    <PlusIcon />
-                                                </SvgIcon>
-                                            )}
-                                            variant="contained"
-                                            sx={{
-                                                color: "neutral.100"
-                                            }}
-                                        >
-                                            Add
-                                        </Button>
-                                    </div>
-                                </Stack>
+                                <PageHeader
+                                    title={`Product Ratings Of ${selected.product_name}`}
+                                    action={{ onClick: handleClickOpenCreateDialog }}
+                                    inDialog
+                                />
                                 <CustomSearch
                                     popoverItems={filterItems}
                                     handleSearch={handleSearch}
@@ -302,7 +282,7 @@ function ViewProductRatings({ open, handleClose, selected }) {
                     </Box>
                 </>
             </DialogContent>
-        </Dialog>
+        </AppDialog>
     )
 }
 

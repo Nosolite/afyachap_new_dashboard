@@ -5,8 +5,8 @@ import {
   Container,
   Stack,
   SvgIcon,
-  Typography,
 } from "@mui/material";
+import { PageHeader } from "../../components/page-header";
 import { useSelection } from "../../hooks/use-selection";
 import { CustomSearch } from "../../components/custom-search";
 import { UsersRenewHeadCells } from "../../seed/table-headers";
@@ -152,16 +152,7 @@ function RenewedUsers() {
 
       <Container maxWidth={false}>
         <Stack spacing={2}>
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            spacing={4}
-            alignItems="center"
-          >
-            <Stack spacing={1}>
-              <Typography variant="h4">Accounts Renew</Typography>
-            </Stack>
-          </Stack>
+          <PageHeader title="Accounts Renew" />
           <CustomSearch handleSearch={handleSearch} />
           {isLoading && (
             <Box

@@ -1,5 +1,6 @@
 import React from 'react'
-import { Box, Container, Stack, SvgIcon, Tab, Tabs, Typography } from '@mui/material';
+import { Box, Container, Stack, SvgIcon, Tab, Tabs } from '@mui/material';
+import { PageHeader } from '../../components/page-header';
 import { useSelection } from '../../hooks/use-selection';
 import { CustomTable } from '../../components/custom-table';
 import { CustomSearch } from '../../components/custom-search';
@@ -388,16 +389,7 @@ function Authors() {
       >
         <Container maxWidth={false}>
           <Stack spacing={2}>
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              flexWrap="wrap"
-              spacing={4}
-            >
-              <Typography variant="h4">
-                Authors
-              </Typography>
-            </Stack>
+            <PageHeader title="Authors" />
             <Tabs
               onChange={handleTabChange}
               value={currentTab}

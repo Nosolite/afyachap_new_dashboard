@@ -1,5 +1,6 @@
 import React from 'react'
-import { Box, Container, Stack, SvgIcon, Typography } from '@mui/material';
+import { Box, Container, Stack, SvgIcon } from '@mui/material';
+import { PageHeader } from '../../components/page-header';
 import { useSelection } from '../../hooks/use-selection';
 import { CustomTable } from '../../components/custom-table';
 import { CustomSearch } from '../../components/custom-search';
@@ -140,17 +141,7 @@ function ChatSessionsAppeals() {
             >
                 <Container maxWidth={false}>
                     <Stack spacing={2}>
-                        <Stack
-                            direction="row"
-                            justifyContent="space-between"
-                            spacing={4}
-                        >
-                            <Stack spacing={1}>
-                                <Typography variant="h4">
-                                    Chat Sessions Appeals
-                                </Typography>
-                            </Stack>
-                        </Stack>
+                        <PageHeader title="Chat Sessions Appeals" />
                         <CustomSearch
                             popoverItems={filterItems}
                             handleSearch={handleSearch}

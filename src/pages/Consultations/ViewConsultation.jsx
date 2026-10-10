@@ -1,7 +1,7 @@
 import React from 'react'
-import { Box, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Slide, SvgIcon, Typography, useMediaQuery, } from '@mui/material'
+import { Box, CircularProgress, DialogContent, DialogTitle, Slide, Typography, useMediaQuery, } from '@mui/material'
 import { alpha } from '@mui/material/styles';
-import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon';
+import { AppDialog, DialogCloseBar } from '../../components/app-dialog';
 import { Scrollbar } from '../../components/scrollbar';
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase'
@@ -34,28 +34,19 @@ function ViewConsultation({ open, handleClose, selected }) {
     }, [selected])
 
     return (
-        <Dialog
+        <AppDialog
             open={open}
             TransitionComponent={Transition}
             aria-describedby="form-dialog"
             fullWidth={true}
             maxWidth={"lg"}
         >
-            <DialogActions>
-                <IconButton
-                    edge="start"
-                    color="inherit"
-                    onClick={() => {
-                        handleClose()
-                    }}
-                    aria-label="close"
-                >
-                    <SvgIcon fontSize='small'>
-                        <XMarkIcon />
-                    </SvgIcon>
-                </IconButton>
-            </DialogActions>
-            <DialogTitle>
+            <DialogCloseBar
+                onClose={handleClose}
+                iconSize="small"
+                title="Chat Session"
+            />
+            <DialogTitle sx={{ display: { xs: 'none', md: 'block' } }}>
                 {`Chat session between ${selected.doctor_name} and ${selected.username}`}
             </DialogTitle>
             <DialogContent>
@@ -296,7 +287,7 @@ function ViewConsultation({ open, handleClose, selected }) {
                         ))}
                 </Scrollbar>
             </DialogContent>
-        </Dialog>
+        </AppDialog>
     )
 }
 

@@ -5,7 +5,6 @@ import {
   Button,
   Chip,
   CircularProgress,
-  Drawer,
   IconButton,
   SvgIcon,
   Table,
@@ -15,6 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import XMarkIcon from "@heroicons/react/24/outline/XMarkIcon";
+import { ResponsiveDetailDrawer } from "../../components/responsive-detail-drawer";
 import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { CustomPopOver } from "../../components/custom-popover";
@@ -191,17 +191,7 @@ export const ViewOrderSideNav = (props) => {
   ]);
 
   return (
-    <Drawer
-      anchor="right"
-      open={open}
-      onClose={onClose}
-      PaperProps={{
-        sx: {
-          backgroundColor: "neutral.100",
-          width: 300,
-        },
-      }}
-    >
+    <ResponsiveDetailDrawer open={open} onClose={onClose}>
       {openAlert && (
         <CustomAlert
           openAlert={openAlert}
@@ -585,7 +575,7 @@ export const ViewOrderSideNav = (props) => {
           </Table>
         </Box>
       )}
-    </Drawer>
+    </ResponsiveDetailDrawer>
   );
 };
 

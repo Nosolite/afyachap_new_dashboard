@@ -16,8 +16,8 @@ import {
 import { Scrollbar } from '../../components/scrollbar';
 import { items } from './config';
 import { SideNavItem } from './side-nav-item';
-import { useDispatch, useSelector } from 'react-redux';
 import { SubSideNavItem } from './sub-side-nav-item';
+import { useThemeMode } from '../../hooks/use-theme-mode';
 import { useLocation } from 'react-router-dom';
 import { MIN_SIDE_NAV_WIDTH, SIDE_NAV_WIDTH, SUB_SIDE_NAV_WIDTH } from '../../utils/constant';
 import { useAuth } from '../../hooks/use-auth';
@@ -25,23 +25,13 @@ import { useAuth } from '../../hooks/use-auth';
 export const SideNav = (props) => {
   const auth = useAuth();
   const { open, onClose } = props;
-  const dispatch = useDispatch();
   const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'));
-  const settings = useSelector((state) => state.SettingsReducer);
+  const { isDark, toggleTheme } = useThemeMode();
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [persistIndex, setPersistIndex] = React.useState(0);
   const [opacity, setOpacity] = React.useState(true);
   const router = useLocation();
   const { pathname } = router;
-
-  const toggleTheme = () => {
-    const newThemeMode = settings.theme === 'light' || settings.theme === '' ? 'dark' : 'light';
-    dispatch({
-      type: "CHANGE_THEME",
-      payload: { ...settings, theme: newThemeMode },
-    });
-    localStorage.setItem("theme", newThemeMode);
-  };
 
   React.useEffect(() => {
     const searchIndex = items.findIndex((item) => {
@@ -139,7 +129,7 @@ export const SideNav = (props) => {
                 onClick={toggleTheme}
               >
                 <SvgIcon fontSize="large" sx={{ color: "text.secondary" }}>
-                  {settings.theme === 'light' || settings.theme === '' ? <MoonIcon /> : <SunIcon />}
+                  {isDark ? <SunIcon /> : <MoonIcon />}
                 </SvgIcon>
               </IconButton>
             </Avatar>

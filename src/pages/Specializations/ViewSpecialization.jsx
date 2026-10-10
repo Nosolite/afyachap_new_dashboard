@@ -1,6 +1,6 @@
 import React from 'react'
-import { Avatar, Box, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, List, ListItem, ListItemAvatar, ListItemText, Slide, SvgIcon, Typography } from '@mui/material'
-import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon';
+import { Avatar, Box, CircularProgress, DialogContent, DialogTitle, List, ListItem, ListItemAvatar, ListItemText, Slide, Typography } from '@mui/material'
+import { AppDialog, DialogCloseBar } from '../../components/app-dialog';
 import { Scrollbar } from '../../components/scrollbar';
 import { postRequest } from '../../services/api-service';
 import { getAllDoctorBasedOnSpecializationUrl } from '../../seed/url';
@@ -37,28 +37,19 @@ function ViewSpecialization({ open, handleClose, selected }) {
     }, [fetcher])
 
     return (
-        <Dialog
+        <AppDialog
             open={open}
             TransitionComponent={Transition}
             aria-describedby="form-dialog"
             fullWidth={true}
             maxWidth={"md"}
         >
-            <DialogActions>
-                <IconButton
-                    edge="start"
-                    color="inherit"
-                    onClick={() => {
-                        handleClose()
-                    }}
-                    aria-label="close"
-                >
-                    <SvgIcon fontSize='small'>
-                        <XMarkIcon />
-                    </SvgIcon>
-                </IconButton>
-            </DialogActions>
-            <DialogTitle>
+            <DialogCloseBar
+                onClose={handleClose}
+                iconSize="small"
+                title={selected.title}
+            />
+            <DialogTitle sx={{ display: { xs: 'none', md: 'block' } }}>
                 {selected.title}
             </DialogTitle>
             <DialogContent>
@@ -114,7 +105,7 @@ function ViewSpecialization({ open, handleClose, selected }) {
                     </Scrollbar>
                 }
             </DialogContent>
-        </Dialog>
+        </AppDialog>
     )
 }
 

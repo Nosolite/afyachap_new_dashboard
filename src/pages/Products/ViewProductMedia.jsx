@@ -1,6 +1,6 @@
 import React from 'react'
-import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Fab, IconButton, ImageList, ImageListItem, ImageListItemBar, Slide, SvgIcon, Typography } from '@mui/material'
-import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon'
+import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, Fab, IconButton, ImageList, ImageListItem, ImageListItemBar, Slide, SvgIcon, Typography } from '@mui/material'
+import { AppDialog, DialogCloseBar } from '../../components/app-dialog'
 import TrashIcon from '@heroicons/react/24/outline/TrashIcon'
 import PlusIcon from '@heroicons/react/24/outline/PlusIcon'
 import { postRequest } from '../../services/api-service'
@@ -85,29 +85,20 @@ function ViewProductMedia({
     }, [fetchProductImages])
 
     return (
-        <Dialog
+        <AppDialog
             open={open}
             TransitionComponent={Transition}
             aria-describedby="form-dialog"
             fullWidth={true}
             maxWidth={"xl"}
         >
-            <DialogActions>
-                <IconButton
-                    edge="start"
-                    color="inherit"
-                    aria-label="close"
-                    disabled={isSubmitting}
-                    onClick={() => {
-                        handleClose()
-                    }}
-                >
-                    <SvgIcon fontSize='small'>
-                        <XMarkIcon />
-                    </SvgIcon>
-                </IconButton>
-            </DialogActions>
-            <DialogTitle>Product Media</DialogTitle>
+            <DialogCloseBar
+                onClose={handleClose}
+                disabled={isSubmitting}
+                iconSize="small"
+                title="Product Media"
+            />
+            <DialogTitle sx={{ display: { xs: 'none', md: 'block' } }}>Product Media</DialogTitle>
             <DialogContent>
                 {isLoading &&
                     <Box sx={{
@@ -203,7 +194,7 @@ function ViewProductMedia({
                     Cancel
                 </Button>
             </DialogActions>
-        </Dialog>
+        </AppDialog>
     )
 }
 

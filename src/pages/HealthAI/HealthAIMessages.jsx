@@ -1,5 +1,6 @@
 import React from 'react'
-import { Box, Container, Stack, SvgIcon, Typography } from '@mui/material'
+import { Box, Container, Stack, SvgIcon } from '@mui/material'
+import { PageHeader } from '../../components/page-header'
 import EyeIcon from '@heroicons/react/24/outline/EyeIcon'
 import NoSymbolIcon from '@heroicons/react/24/outline/NoSymbolIcon'
 import { useSelection } from '../../hooks/use-selection'
@@ -167,12 +168,10 @@ function HealthAIMessages() {
       >
         <Container maxWidth={false}>
           <Stack spacing={2}>
-            <Stack spacing={1}>
-              <Typography variant="h4">Health AI Sessions</Typography>
-              <Typography variant="body2" color="text.secondary">
-                ChatGPT-style conversations. Open a session thread or block a user from AI chat.
-              </Typography>
-            </Stack>
+            <PageHeader
+              title="Health AI Sessions"
+              subtitle="ChatGPT-style conversations. Open a session thread or block a user from AI chat."
+            />
             <CustomSearch popoverItems={filterItems} handleSearch={handleSearch} />
             <CustomTable
               order={order}

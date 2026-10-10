@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Divider, Drawer, IconButton, List, ListItem, ListItemText, SvgIcon, Typography } from '@mui/material';
+import { Box, Divider, IconButton, List, ListItem, ListItemText, SvgIcon, Typography } from '@mui/material';
+import { ResponsiveDetailDrawer } from '../../components/responsive-detail-drawer';
 import PropTypes from 'prop-types';
 import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon';
 import { useSelector } from 'react-redux';
@@ -9,18 +10,7 @@ export const ViewContentVerificationHistorySideNav = (props) => {
     const orderSideNav = useSelector((state) => state.ViewPaymentSideNavReducer);
 
     return (
-        <Drawer
-            anchor='right'
-            open={open}
-            onClose={onClose}
-            PaperProps={{
-                sx: {
-                    backgroundColor: 'neutral.100',
-                    width: 300
-                }
-            }}
-            sx={{ zIndex: 1300 }}
-        >
+        <ResponsiveDetailDrawer open={open} onClose={onClose} zIndex={1300}>
             <Box>
                 <Box
                     sx={{
@@ -78,7 +68,7 @@ export const ViewContentVerificationHistorySideNav = (props) => {
                         })}
                 </List>
             </Box>
-        </Drawer >
+        </ResponsiveDetailDrawer>
     );
 
 };

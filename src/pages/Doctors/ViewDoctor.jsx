@@ -1,6 +1,6 @@
 import React from 'react'
-import { Dialog, DialogActions, DialogContent, IconButton, Slide, SvgIcon, Tab, Tabs, } from '@mui/material'
-import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon';
+import { DialogContent, Slide, Tab, Tabs, } from '@mui/material'
+import { AppDialog, DialogCloseBar } from '../../components/app-dialog';
 import { Scrollbar } from '../../components/scrollbar';
 import DoctorInformation from './DoctorInformation';
 import DoctorReviews from './DoctorReviews';
@@ -23,32 +23,23 @@ function ViewDoctor({ open, handleClose, selected, setIsDeleting, setSeverityMes
     )
 
     return (
-        <Dialog
+        <AppDialog
             open={open}
             TransitionComponent={Transition}
             aria-describedby="form-dialog"
             fullWidth={true}
             maxWidth={"md"}
         >
-            <DialogActions>
-                <IconButton
-                    edge="start"
-                    color="inherit"
-                    onClick={() => {
-                        handleClose()
-                    }}
-                    aria-label="close"
-                >
-                    <SvgIcon fontSize='small'>
-                        <XMarkIcon />
-                    </SvgIcon>
-                </IconButton>
-            </DialogActions>
+            <DialogCloseBar
+                onClose={handleClose}
+                iconSize="small"
+                title="Doctor"
+            />
             <DialogContent>
                 <Tabs
                     onChange={handleTabChange}
                     value={currentTab}
-                    sx={{ mt: -4, ml: 3, mb: 3 }}
+                    sx={{ mt: { xs: 0, md: -4 }, ml: { xs: 0, md: 3 }, mb: { xs: 1, md: 3 } }}
                     variant='scrollable'
                     scrollButtons="auto"
                 >
@@ -114,7 +105,7 @@ function ViewDoctor({ open, handleClose, selected, setIsDeleting, setSeverityMes
                     }
                 </Scrollbar>
             </DialogContent>
-        </Dialog>
+        </AppDialog>
     )
 }
 

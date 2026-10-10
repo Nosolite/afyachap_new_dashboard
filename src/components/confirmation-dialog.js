@@ -10,6 +10,8 @@ import {
   DialogTitle,
   Slide,
 } from "@mui/material";
+import { useIsMobile } from "../hooks/use-is-mobile";
+import { MobileConfirmSheet } from "./mobile/mobile-confirm-sheet";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -23,6 +25,21 @@ export const ConfirmationDialog = ({
   title,
   content,
 }) => {
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return (
+      <MobileConfirmSheet
+        open={open}
+        onClose={handleClose}
+        onConfirm={handleSubmit}
+        isLoading={isSubmitting}
+        title={title}
+        message={content}
+      />
+    );
+  }
+
   return (
     <Dialog
       open={open}

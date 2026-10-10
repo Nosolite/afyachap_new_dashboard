@@ -1,16 +1,18 @@
 import React from 'react'
-import { AppBar, Avatar, Card, CardContent, CardHeader, Container, Dialog, DialogContent, Grid, IconButton, List, ListItem, ListItemAvatar, ListItemText, SvgIcon, Table, TableBody, TableCell, TableRow, Toolbar, Typography } from '@mui/material'
+import { AppBar, Avatar, Card, CardContent, CardHeader, Container, DialogContent, Grid, IconButton, List, ListItem, ListItemAvatar, ListItemText, SvgIcon, Table, TableBody, TableCell, TableRow, Toolbar, Typography } from '@mui/material'
 import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon';
+import { AppDialog } from '../../components/app-dialog';
 import CogIcon from '@heroicons/react/24/outline/CogIcon';
 import { Scrollbar } from '../../components/scrollbar';
 import { IOSSwitch } from '../../components/IOSSwitch';
 
 function ViewAdministrator({ open, handleClose, selected }) {
     return (
-        <Dialog
+        <AppDialog
             open={open}
             onClose={handleClose}
             fullScreen
+            disableMobileContentGutters
             PaperProps={{
                 style: {
                     boxShadow: "none"
@@ -213,7 +215,7 @@ function ViewAdministrator({ open, handleClose, selected }) {
                     </Grid>
                 </Container>
             </DialogContent>
-        </Dialog>
+        </AppDialog>
     )
 }
 

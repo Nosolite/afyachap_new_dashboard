@@ -1,15 +1,11 @@
 import React from "react";
 import {
-  Dialog,
-  DialogActions,
   DialogContent,
-  IconButton,
   Slide,
-  SvgIcon,
   Tab,
   Tabs,
 } from "@mui/material";
-import XMarkIcon from "@heroicons/react/24/outline/XMarkIcon";
+import { AppDialog, DialogCloseBar } from "../../components/app-dialog";
 import { Scrollbar } from "../../components/scrollbar";
 import UserSubscriberDetails from "../Payments/UserSubscriberDetails";
 
@@ -29,31 +25,22 @@ function ViewMoreDialog({ open, handleClose, selected }) {
   console.log("Selected User ID:", selected);
 
   return (
-    <Dialog
+    <AppDialog
       open={open}
       TransitionComponent={Transition}
       aria-describedby="form-dialog"
       fullWidth={true}
       maxWidth={"lg"}
     >
-      <DialogActions>
-        <IconButton
-          edge="start"
-          color="inherit"
-          onClick={() => {
-            handleClose();
-          }}
-          aria-label="close"
-        >
-          <SvgIcon fontSize="small">
-            <XMarkIcon />
-          </SvgIcon>
-        </IconButton>
-      </DialogActions>
+      <DialogCloseBar
+        onClose={handleClose}
+        iconSize="small"
+        title="Subscriber Details"
+      />
       <DialogContent>
         <UserSubscriberDetails userId={selected} />
       </DialogContent>
-    </Dialog>
+    </AppDialog>
   );
 }
 

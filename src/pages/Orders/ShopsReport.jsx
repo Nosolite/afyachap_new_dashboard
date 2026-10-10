@@ -1,5 +1,6 @@
 import React from 'react'
-import { Box, Container, Stack, Typography } from '@mui/material'
+import { Box, Container, Stack } from '@mui/material'
+import { PageHeader } from '../../components/page-header'
 
 function ShopsReport() {
   return (
@@ -14,17 +15,7 @@ function ShopsReport() {
       >
         <Container maxWidth={false}>
           <Stack spacing={2}>
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              spacing={4}
-            >
-              <Stack spacing={1}>
-                <Typography variant="h4">
-                  Report
-                </Typography>
-              </Stack>
-            </Stack>
+            <PageHeader title="Report" />
           </Stack>
         </Container>
       </Box>

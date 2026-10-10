@@ -1,6 +1,6 @@
 import React from 'react'
-import PlusIcon from '@heroicons/react/24/outline/PlusIcon';
-import { Backdrop, Box, Button, CircularProgress, Container, Stack, SvgIcon, Tab, Tabs, Typography } from '@mui/material';
+import { Backdrop, Box, CircularProgress, Container, Stack, SvgIcon, Tab, Tabs, Typography } from '@mui/material';
+import { PageHeader } from '../../components/page-header';
 import { useSelection } from '../../hooks/use-selection';
 import { CustomTable } from '../../components/custom-table';
 import { CustomSearch } from '../../components/custom-search';
@@ -635,32 +635,10 @@ function Contents() {
       >
         <Container maxWidth={false}>
           <Stack spacing={2}>
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              flexWrap="wrap"
-              spacing={4}
-            >
-              <Typography variant="h4">
-                Contents
-              </Typography>
-              <Box>
-                <Button
-                  onClick={handleClickOpenCreateDialog}
-                  startIcon={(
-                    <SvgIcon fontSize="small">
-                      <PlusIcon />
-                    </SvgIcon>
-                  )}
-                  variant="contained"
-                  sx={{
-                    color: "neutral.100"
-                  }}
-                >
-                  Add
-                </Button>
-              </Box>
-            </Stack>
+            <PageHeader
+              title="Contents"
+              action={{ onClick: handleClickOpenCreateDialog }}
+            />
             <Tabs
               onChange={handleTabChange}
               value={currentTab}

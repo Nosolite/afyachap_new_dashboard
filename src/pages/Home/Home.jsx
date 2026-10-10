@@ -1,5 +1,5 @@
 import React from 'react'
-import { Avatar, Box, Card, CardContent, CardHeader, CircularProgress, Container, Grid, List, ListItem, ListItemAvatar, ListItemText, Stack, SvgIcon, Typography } from '@mui/material'
+import { Avatar, Box, Card, CardContent, CardHeader, CircularProgress, Container, Grid, List, ListItem, ListItemAvatar, ListItemText, SvgIcon, Typography } from '@mui/material'
 import BanknotesIcon from '@heroicons/react/24/outline/BanknotesIcon';
 import LockOpenIcon from '@heroicons/react/24/outline/LockOpenIcon';
 import LockClosedIcon from '@heroicons/react/24/outline/LockClosedIcon';
@@ -9,8 +9,16 @@ import { getRequest, webGetRequest } from '../../services/api-service';
 import { formatMoney, formatNumber } from '../../utils/constant';
 import { numberToMonth } from '../../utils/date-formatter';
 import { CalendarIcon } from '@mui/x-date-pickers';
+import { PageHeader } from '../../components/page-header';
+import { useIsMobile } from '../../hooks/use-is-mobile';
+import { MobileStatsOverview } from '../../components/mobile/mobile-stats-overview';
+import UsersIcon from '@heroicons/react/24/outline/UsersIcon';
+import UserIcon from '@heroicons/react/24/outline/UserIcon';
+import DevicePhoneMobileIcon from '@heroicons/react/24/outline/DevicePhoneMobileIcon';
+import HeartIcon from '@heroicons/react/24/outline/HeartIcon';
 
 function Home() {
+  const isMobile = useIsMobile()
   const [isTotalUserSummaryLoading, setIsTotalUserSummaryLoading] = React.useState(true)
   const [isTotalChatsSummaryLoading, setIsTotalChatsSummaryLoading] = React.useState(true)
   const [isTotalUsersLoading, setIsTotalUsersLoading] = React.useState(true)
@@ -291,20 +299,36 @@ function Home() {
       }}
     >
       <Container maxWidth={false}>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          spacing={4}
-          sx={{ mb: 2 }}
-        >
-          <Stack spacing={1}>
-            <Typography variant="h4">
-              Overview
-            </Typography>
-          </Stack>
-        </Stack>
-        <Grid container spacing={3}>
+        {!isMobile &&
+          <Box sx={{ mb: 2 }}>
+            <PageHeader title="Overview" />
+          </Box>
+        }
+        <Grid container spacing={isMobile ? 2 : 3}>
           <Grid item sm={12} xs={12} md={9} lg={9}>
+            {isMobile ?
+            <MobileStatsOverview
+              hero={{
+                label: 'Total Users',
+                value: formatNumber(totalUsers?.COUNT || 0),
+                isLoading: isTotalUsersLoading,
+                icon: <UsersIcon />,
+                badge: {
+                  label: `+${formatNumber(totalTodayUsers?.COUNT || 0)} new today`,
+                  isLoading: isTotalTodayUsersLoading,
+                },
+              }}
+              stats={[
+                { label: 'Male Users', value: formatNumber(totalMaleUsers?.COUNT || 0), isLoading: isTotalMaleUsersLoading, icon: <UserIcon />, color: 'info' },
+                { label: 'Female Users', value: formatNumber(totalFemaleUsers?.COUNT || 0), isLoading: isTotalFemaleUsersLoading, icon: <UserIcon />, color: 'error' },
+                { label: 'Android Users', value: formatNumber(totalAndroidUsers?.COUNT || 0), isLoading: isTotalAndroidUsersLoading, icon: <DevicePhoneMobileIcon />, color: 'success' },
+                { label: 'iPhone Users', value: formatNumber(totalIOSUsers?.COUNT || 0), isLoading: isTotalIOSUsersLoading, icon: <DevicePhoneMobileIcon />, color: 'info' },
+                { label: 'Doctors', value: formatNumber(totalDoctors?.COUNT || 0), isLoading: isTotalDoctorsLoading, icon: <HeartIcon />, color: 'error' },
+                { label: 'Total Revenue', value: formatMoney(112100000), isLoading: false, icon: <BanknotesIcon />, color: 'warning' },
+                { label: 'Premium Accounts', value: formatNumber(totalFreePremiumAccounts?.[1]?.total || 0) || 0, isLoading: isLoadingTotalFreePremiumAccounts, icon: <LockOpenIcon />, color: 'primary' },
+                { label: 'Free Accounts', value: formatNumber(totalFreePremiumAccounts?.[0]?.total || 0) || 0, isLoading: isLoadingTotalFreePremiumAccounts, icon: <LockClosedIcon />, color: 'warning' },
+              ]}
+            /> :
             <Grid container spacing={3}>
               <Grid item sm={12} xs={12} md={12} lg={12}>
                 <Card
@@ -576,6 +600,7 @@ function Home() {
                 </Card>
               </Grid>
             </Grid>
+            }
           </Grid>
           <Grid item sm={6} xs={12} md={3} lg={3}>
             <Card

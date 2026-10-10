@@ -1,6 +1,6 @@
 import React from 'react'
-import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, ImageList, ImageListItem, ImageListItemBar, Slide, SvgIcon } from '@mui/material'
-import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon'
+import { Box, Button, CircularProgress, DialogContent, DialogTitle, ImageList, ImageListItem, ImageListItemBar, Slide, SvgIcon } from '@mui/material'
+import { AppDialog, DialogCloseBar } from '../../components/app-dialog'
 import CheckBadgeIcon from '@heroicons/react/24/outline/CheckBadgeIcon'
 import { FormDialog } from '../../components/form-dialog'
 import { approveDatingUserImageFormFields } from '../../seed/form-fields'
@@ -52,7 +52,7 @@ function ViewUserPhotos({
     }
 
     return (
-        <Dialog
+        <AppDialog
             open={open}
             TransitionComponent={Transition}
             aria-describedby="form-dialog"
@@ -74,21 +74,12 @@ function ViewUserPhotos({
                     url={verifyDatingUserImageUrl}
                 />
             }
-            <DialogActions>
-                <IconButton
-                    edge="start"
-                    color="inherit"
-                    aria-label="close"
-                    onClick={() => {
-                        handleClose()
-                    }}
-                >
-                    <SvgIcon fontSize='large'>
-                        <XMarkIcon />
-                    </SvgIcon>
-                </IconButton>
-            </DialogActions>
-            <DialogTitle>Photos</DialogTitle>
+            <DialogCloseBar
+                onClose={handleClose}
+                iconSize="large"
+                title="Photos"
+            />
+            <DialogTitle sx={{ display: { xs: 'none', md: 'block' } }}>Photos</DialogTitle>
             <DialogContent>
                 {isLoading &&
                     <Box sx={{
@@ -156,7 +147,7 @@ function ViewUserPhotos({
                     </ImageList>
                 }
             </DialogContent>
-        </Dialog>
+        </AppDialog>
     )
 }
 

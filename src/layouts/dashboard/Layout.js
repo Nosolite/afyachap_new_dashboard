@@ -12,6 +12,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ViewOrderSideNav } from './view-order-side-nav';
 import { ViewProductSideNav } from './view-product-side-nav';
 import { ViewContentVerificationHistorySideNav } from './view-content-verification-history-side-nav';
+import { useIsMobile } from '../../hooks/use-is-mobile';
+import { MobileAppShell } from './mobile/mobile-app-shell';
 
 const LayoutRoot = styled('div')(({ theme, width }) => ({
     display: 'flex',
@@ -32,6 +34,7 @@ const LayoutContainer = styled('div')({
 const Layout = withAuthGuard((props) => {
     const { children } = props;
     const dispatch = useDispatch();
+    const isMobile = useIsMobile();
     const router = useLocation();
     const { pathname } = router;
     const [openNav, setOpenNav] = useState(false);
@@ -65,13 +68,8 @@ const Layout = withAuthGuard((props) => {
         searchIndex >= 0 && setCurrentIndex(searchIndex);
     }, [pathname]);
 
-    return (
+    const detailDrawers = (
         <>
-            <TopNav onNavOpen={() => setOpenNav(true)} />
-            <SideNav
-                onClose={() => setOpenNav(false)}
-                open={openNav}
-            />
             <ViewPaymentSideNav
                 open={paymentSideNav.openViewPaymentSideNav}
                 onClose={() => {
@@ -122,6 +120,28 @@ const Layout = withAuthGuard((props) => {
                     }}
                 />
             }
+        </>
+    );
+
+    if (isMobile) {
+        return (
+            <>
+                <MobileAppShell>
+                    {children}
+                </MobileAppShell>
+                {detailDrawers}
+            </>
+        );
+    }
+
+    return (
+        <>
+            <TopNav onNavOpen={() => setOpenNav(true)} />
+            <SideNav
+                onClose={() => setOpenNav(false)}
+                open={openNav}
+            />
+            {detailDrawers}
             <LayoutRoot
                 width={items[currentIndex]?.children ? SIDE_NAV_WIDTH : MIN_SIDE_NAV_WIDTH}
             >

@@ -2,18 +2,14 @@ import React from 'react'
 import {
   Box,
   CircularProgress,
-  Dialog,
-  DialogActions,
   DialogContent,
   DialogTitle,
-  IconButton,
   Slide,
   Stack,
-  SvgIcon,
   Typography,
   useMediaQuery,
 } from '@mui/material'
-import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon'
+import { AppDialog, DialogCloseBar } from '../../components/app-dialog'
 import { Scrollbar } from '../../components/scrollbar'
 import { authPostRequest } from '../../services/api-service'
 import { healthAIAdminUserMessagesUrl } from '../../seed/url'
@@ -64,7 +60,7 @@ function ViewUserThread({ open, handleClose, selected }) {
   const sessionTitle = selected?.title || selected?.session_title || `Session #${selected?.id || ''}`
 
   return (
-    <Dialog
+    <AppDialog
       open={open}
       TransitionComponent={Transition}
       aria-describedby="health-ai-thread-dialog"
@@ -72,14 +68,13 @@ function ViewUserThread({ open, handleClose, selected }) {
       maxWidth="md"
       fullScreen={!lgUp}
     >
-      <DialogActions>
-        <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
-          <SvgIcon fontSize="small">
-            <XMarkIcon />
-          </SvgIcon>
-        </IconButton>
-      </DialogActions>
-      <DialogTitle>{`${sessionTitle} · ${titleName}`}</DialogTitle>
+      <DialogCloseBar
+        onClose={handleClose}
+        iconSize="small"
+        title={sessionTitle}
+        subtitle={titleName}
+      />
+      <DialogTitle sx={{ display: { xs: 'none', md: 'block' } }}>{`${sessionTitle} · ${titleName}`}</DialogTitle>
       <DialogContent dividers>
         {isLoading ? (
           <Box
@@ -169,7 +164,7 @@ function ViewUserThread({ open, handleClose, selected }) {
           </Scrollbar>
         )}
       </DialogContent>
-    </Dialog>
+    </AppDialog>
   )
 }
 
