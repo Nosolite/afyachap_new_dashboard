@@ -240,6 +240,7 @@ export const createServiceProvidedUrl = `${usersUrl}/api/v1/create/service/provi
 export const getAllServicesProvidedUrl = `${usersUrl}/api/v1/get/all/services/provided`;
 export const getAllservicesProvidedByPaginationUrl = `${usersUrl}/api/v1/get/all/services/provided/by/pagination`;
 export const updateServiceProvidedUrl = `${usersUrl}/api/v1/update/service/provided`;
+export const updateServiceProvidedStatusUrl = `${usersUrl}/api/v1/update/service/provided/status`;
 export const deleteServiceProvidedUrl = `${usersUrl}/api/v1/delete/service/provided`;
 
 /*Products Contents Banners URLs */

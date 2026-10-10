@@ -46,6 +46,7 @@ export const CustomTable = (props) => {
     isLoading,
     switchFunction,
     isSubmitting,
+    submittingId,
     pinUnpinFunction,
     isPinning,
   } = props;
@@ -324,6 +325,34 @@ export const CustomTable = (props) => {
                                   row.icon_url || row?.image_url || row?.icon
                                 }
                               />
+                            </TableCell>
+                          );
+                        } else if (column.id === "is_enabled") {
+                          return (
+                            <TableCell key={index}>
+                              {isSubmitting && submittingId === row.id ? (
+                                <CircularProgress size={26} />
+                              ) : (
+                                <IOSSwitch
+                                  checked={Boolean(row.is_enabled)}
+                                  disabled={Boolean(isSubmitting)}
+                                  onChange={() => switchFunction(row)}
+                                />
+                              )}
+                            </TableCell>
+                          );
+                        } else if (column.id === "banner_url") {
+                          return (
+                            <TableCell key={index}>
+                              {row.banner_url ? (
+                                <Avatar
+                                  variant="rounded"
+                                  src={row.banner_url}
+                                  sx={{ width: 96, height: 40 }}
+                                />
+                              ) : (
+                                "-"
+                              )}
                             </TableCell>
                           );
                         } else if (column.id === "location") {

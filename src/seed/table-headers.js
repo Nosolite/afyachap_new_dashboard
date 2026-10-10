@@ -1192,6 +1192,14 @@ export const servicesProvidedHeadCells = [
     label: "Icon",
   },
   {
+    id: "banner_url",
+    label: "Banner",
+  },
+  {
+    id: "is_enabled",
+    label: "Status",
+  },
+  {
     id: "created_at",
     label: "Created At",
   },

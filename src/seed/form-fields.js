@@ -538,6 +538,7 @@ export const servicesProvidedFormFields = [
     },
     { name: "service_color", type: "color", label: "Service Color" },
     { name: "image", type: "file", label: "Service Icon", notRequired: true },
+    { name: "banner", type: "file", label: "Banner Image", notRequired: true },
 ]
 
 export const productsOrderStatusFormFields = [

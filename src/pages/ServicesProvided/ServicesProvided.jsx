@@ -11,7 +11,7 @@ import { DeleteDialog } from '../../components/delete-dialog';
 import PencilIcon from '@heroicons/react/24/outline/PencilIcon';
 import { FormDialog } from '../../components/form-dialog';
 import { servicesProvidedFormFields } from '../../seed/form-fields';
-import { createServiceProvidedUrl, deleteServiceProvidedUrl, getAllservicesProvidedByPaginationUrl, updateServiceProvidedUrl } from '../../seed/url';
+import { createServiceProvidedUrl, deleteServiceProvidedUrl, getAllservicesProvidedByPaginationUrl, updateServiceProvidedStatusUrl, updateServiceProvidedUrl } from '../../seed/url';
 import { postRequest } from '../../services/api-service';
 import { CustomAlert } from '../../components/custom-alert';
 
@@ -36,6 +36,7 @@ function ServicesProvided() {
     const [searchTerm, setSearchTerm] = React.useState("")
     const [isLoading, setIsLoading] = React.useState(true)
     const [isDeleting, setIsDeleting] = React.useState(false)
+    const [togglingId, setTogglingId] = React.useState(null)
     const productsCategoriesIds = useProductsCategoriesIds(productsCategories.results);
     const productCategoriesSelection = useSelection(productsCategoriesIds);
     const [openCreateDialog, setOpenCreateDialog] = React.useState(false);
@@ -49,7 +50,8 @@ function ServicesProvided() {
             service_name: action === UPDATE ? productCategoriesSelection.selected[0].service_name : "",
             service_type: action === UPDATE ? productCategoriesSelection.selected[0].service_type : "",
             service_color: action === UPDATE ? productCategoriesSelection.selected[0].service_color : "#9ef6b0",
-            image: action === UPDATE ? productCategoriesSelection.selected[0].icon_url : null
+            image: action === UPDATE ? productCategoriesSelection.selected[0].icon_url : null,
+            banner: action === UPDATE ? (productCategoriesSelection.selected[0].banner_url || null) : null
         }
     ]
     const [order, setOrder] = React.useState('desc');
@@ -166,6 +168,38 @@ function ServicesProvided() {
         )
     }
 
+    const handleToggleStatus = (service) => {
+        if (!service?.id || togglingId) {
+            return
+        }
+        setTogglingId(service.id)
+        postRequest(
+            updateServiceProvidedStatusUrl,
+            {
+                id: service.id,
+                is_enabled: !service.is_enabled,
+            },
+            (data) => {
+                setProductsCategories((current) => ({
+                    ...current,
+                    results: current.results.map((item) =>
+                        item.id === service.id ? { ...item, is_enabled: !service.is_enabled } : item
+                    ),
+                }))
+                setSeverityMessage(data.message)
+                setSeverity("success")
+                handleClickAlert()
+                setTogglingId(null)
+            },
+            (error) => {
+                setSeverityMessage(error?.response?.data?.message?.[0] || "Failed to update service status")
+                setSeverity("error")
+                handleClickAlert()
+                setTogglingId(null)
+            },
+        )
+    }
+
     const productPopoverItems = [
         {
             id: 'edit',
@@ -204,7 +238,7 @@ function ServicesProvided() {
                 <FormDialog
                     open={openCreateDialog}
                     handleClose={handleCloseCreateDialog}
-                    dialogTitle={"Product Category"}
+                    dialogTitle={"Service"}
                     action={action}
                     fields={servicesProvidedFormFields}
                     values={values}
@@ -275,6 +309,9 @@ function ServicesProvided() {
                             headCells={servicesProvidedHeadCells}
                             popoverItems={productPopoverItems}
                             isLoading={isLoading}
+                            switchFunction={handleToggleStatus}
+                            isSubmitting={togglingId !== null}
+                            submittingId={togglingId}
                         />
                     </Stack>
                 </Container>
