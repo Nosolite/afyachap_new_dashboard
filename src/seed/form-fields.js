@@ -62,6 +62,15 @@ export const contentFields = [
             { value: 'ALL', label: "ALL", },
         ],
     },
+    {
+        name: "ask_ai_enabled",
+        type: "select",
+        label: "Show Ask AI button",
+        items: [
+            { value: 'NO', label: "NO", },
+            { value: 'YES', label: "YES", },
+        ],
+    },
 ]
 
 export const contentAudioFields = [

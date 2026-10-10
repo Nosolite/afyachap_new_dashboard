@@ -512,6 +512,7 @@ function Contents() {
                   campaign_id: selectedContent.campaign_id,
                   last_visible_cover_image: selectedContent.last_visible_cover_image,
                   platform: selectedContent.platform,
+                  ask_ai_enabled: data?.ask_ai_enabled || selectedContent.ask_ai_enabled || "NO",
                   is_doctor: author.is_doctor,
                 },
               })

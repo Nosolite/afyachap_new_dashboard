@@ -14,6 +14,7 @@ export const contentInfoInitialState = {
     campaign_id: 0,
     last_visible_cover_image: 1,
     platform: "",
+    ask_ai_enabled: "NO",
     is_doctor: "",
 }
 
