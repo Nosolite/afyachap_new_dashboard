@@ -1,5 +1,6 @@
 import React from 'react'
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -29,22 +30,30 @@ import { CustomAlert } from '../../components/custom-alert'
 import { IOSSwitch } from '../../components/IOSSwitch'
 import { PageHeader } from '../../components/page-header'
 
+const limitPeriods = [
+  { value: 'DAILY', label: 'Daily (resets every day)' },
+  { value: 'MONTHLY', label: 'Monthly (resets on the 1st)' },
+  { value: 'YEARLY', label: 'Yearly (resets on 1 January)' },
+  { value: 'LIFETIME', label: 'Overall (never resets)' },
+]
+
+const limitField = (label) => Yup.number().min(0, 'Minimum is 0').required(`${label} is required`)
+
 const schema = Yup.object().shape({
   provider: Yup.string().required('Provider is required'),
   model: Yup.string().required('Model is required'),
-  daily_message_limit: Yup.number()
-    .min(1, 'Minimum is 1')
-    .required('Daily message limit is required'),
   max_context_messages: Yup.number()
     .min(2, 'Minimum is 2')
     .max(50, 'Maximum is 50')
     .required('Max context messages is required'),
-  daily_image_limit: Yup.number()
-    .min(0, 'Minimum is 0')
-    .required('Daily image limit is required'),
-  daily_audio_limit: Yup.number()
-    .min(0, 'Minimum is 0')
-    .required('Daily audio limit is required'),
+  free_limit_period: Yup.string().required('Period is required'),
+  free_message_limit: limitField('Message limit'),
+  free_image_limit: limitField('Image limit'),
+  free_audio_limit: limitField('Audio limit'),
+  premium_limit_period: Yup.string().required('Period is required'),
+  premium_message_limit: limitField('Message limit'),
+  premium_image_limit: limitField('Image limit'),
+  premium_audio_limit: limitField('Audio limit'),
   system_prompt: Yup.string().required('System prompt is required'),
 })
 
@@ -52,13 +61,90 @@ const emptySettings = {
   enabled: true,
   provider: 'anthropic',
   model: '',
-  daily_message_limit: 10,
   max_context_messages: 20,
   images_enabled: true,
   audio_enabled: true,
-  daily_image_limit: 5,
-  daily_audio_limit: 5,
+  free_limit_period: 'DAILY',
+  free_message_limit: 10,
+  free_image_limit: 5,
+  free_audio_limit: 5,
+  premium_limit_period: 'DAILY',
+  premium_message_limit: 50,
+  premium_image_limit: 20,
+  premium_audio_limit: 20,
   system_prompt: '',
+}
+
+const toFormValues = (data) => ({
+  enabled: Boolean(data.enabled),
+  provider: data.provider || 'anthropic',
+  model: data.model || '',
+  max_context_messages: data.max_context_messages || 20,
+  images_enabled: data.images_enabled !== false,
+  audio_enabled: data.audio_enabled !== false,
+  free_limit_period: data.free_limit_period || 'DAILY',
+  free_message_limit: data.free_message_limit ?? 10,
+  free_image_limit: data.free_image_limit ?? 5,
+  free_audio_limit: data.free_audio_limit ?? 5,
+  premium_limit_period: data.premium_limit_period || 'DAILY',
+  premium_message_limit: data.premium_message_limit ?? 50,
+  premium_image_limit: data.premium_image_limit ?? 20,
+  premium_audio_limit: data.premium_audio_limit ?? 20,
+  system_prompt: data.system_prompt || '',
+})
+
+function TierLimitsSection({ prefix, title, description, values, errors, touched, handleChange, handleBlur }) {
+  const fieldProps = (name, label, helperText) => ({
+    fullWidth: true,
+    margin: 'normal',
+    type: 'number',
+    label,
+    name: `${prefix}_${name}`,
+    value: values[`${prefix}_${name}`],
+    onChange: handleChange,
+    onBlur: handleBlur,
+    inputProps: { min: 0 },
+    error: Boolean(errors[`${prefix}_${name}`] && touched[`${prefix}_${name}`]),
+    helperText: (touched[`${prefix}_${name}`] && errors[`${prefix}_${name}`]) || helperText,
+  })
+
+  return (
+    <Grid item xs={12}>
+      <Typography variant="h6">{title}</Typography>
+      <Typography variant="body2" color="text.secondary">
+        {description}
+      </Typography>
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={3}>
+          <TextField
+            select
+            fullWidth
+            margin="normal"
+            label="Limit Period"
+            name={`${prefix}_limit_period`}
+            value={values[`${prefix}_limit_period`]}
+            onChange={handleChange}
+            onBlur={handleBlur}
+          >
+            {limitPeriods.map((item) => (
+              <MenuItem key={item.value} value={item.value}>
+                {item.label}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <TextField {...fieldProps('message_limit', 'Message Limit', 'Set 0 to block chat for this group')} />
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <TextField {...fieldProps('image_limit', 'Image Limit', 'Images also count as messages')} />
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <TextField {...fieldProps('audio_limit', 'Audio Limit', 'Voice notes also count as messages')} />
+        </Grid>
+      </Grid>
+    </Grid>
+  )
 }
 
 const emptyStats = {
@@ -114,18 +200,7 @@ function HealthAISettings() {
       healthAIGetSettingsUrl,
       {},
       (data) => {
-        setSettings({
-          enabled: Boolean(data.enabled),
-          provider: data.provider || 'anthropic',
-          model: data.model || '',
-          daily_message_limit: data.daily_message_limit || 10,
-          max_context_messages: data.max_context_messages || 20,
-          images_enabled: data.images_enabled !== false,
-          audio_enabled: data.audio_enabled !== false,
-          daily_image_limit: data.daily_image_limit ?? 5,
-          daily_audio_limit: data.daily_audio_limit ?? 5,
-          system_prompt: data.system_prompt || '',
-        })
+        setSettings(toFormValues(data))
         setIsLoading(false)
       },
       (error) => {
@@ -199,7 +274,7 @@ function HealthAISettings() {
           <Stack spacing={2}>
             <PageHeader
               title="Health AI Settings"
-              subtitle="Switch provider/model, control free daily limits, and review usage."
+              subtitle="Switch provider/model, set free and premium limits, and review usage."
             />
 
             <Grid container spacing={2}>
@@ -249,27 +324,21 @@ function HealthAISettings() {
                     enabled: Boolean(values.enabled),
                     provider: values.provider,
                     model: values.model,
-                    daily_message_limit: Number(values.daily_message_limit),
                     max_context_messages: Number(values.max_context_messages),
                     images_enabled: Boolean(values.images_enabled),
                     audio_enabled: Boolean(values.audio_enabled),
-                    daily_image_limit: Number(values.daily_image_limit),
-                    daily_audio_limit: Number(values.daily_audio_limit),
+                    free_limit_period: values.free_limit_period,
+                    free_message_limit: Number(values.free_message_limit),
+                    free_image_limit: Number(values.free_image_limit),
+                    free_audio_limit: Number(values.free_audio_limit),
+                    premium_limit_period: values.premium_limit_period,
+                    premium_message_limit: Number(values.premium_message_limit),
+                    premium_image_limit: Number(values.premium_image_limit),
+                    premium_audio_limit: Number(values.premium_audio_limit),
                     system_prompt: values.system_prompt,
                   },
                   (data) => {
-                    setSettings({
-                      enabled: Boolean(data.enabled),
-                      provider: data.provider,
-                      model: data.model,
-                      daily_message_limit: data.daily_message_limit,
-                      max_context_messages: data.max_context_messages,
-                      images_enabled: data.images_enabled !== false,
-                      audio_enabled: data.audio_enabled !== false,
-                      daily_image_limit: data.daily_image_limit ?? 5,
-                      daily_audio_limit: data.daily_audio_limit ?? 5,
-                      system_prompt: data.system_prompt,
-                    })
+                    setSettings(toFormValues(data))
                     showAlert('success', 'Health AI settings updated successfully')
                     fetchStats()
                     helpers.setSubmitting(false)
@@ -377,25 +446,7 @@ function HealthAISettings() {
                               ))}
                             </TextField>
                           </Grid>
-                          <Grid item xs={12} md={6}>
-                            <TextField
-                              fullWidth
-                              margin="normal"
-                              type="number"
-                              label="Daily Free Message Limit"
-                              name="daily_message_limit"
-                              value={values.daily_message_limit}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={Boolean(
-                                errors.daily_message_limit && touched.daily_message_limit
-                              )}
-                              helperText={
-                                touched.daily_message_limit && errors.daily_message_limit
-                              }
-                            />
-                          </Grid>
-                          <Grid item xs={12} md={6}>
+                          <Grid item xs={12} md={4}>
                             <TextField
                               fullWidth
                               margin="normal"
@@ -414,7 +465,7 @@ function HealthAISettings() {
                               }
                             />
                           </Grid>
-                          <Grid item xs={12} md={6}>
+                          <Grid item xs={12} md={4} sx={{ display: 'flex', alignItems: 'center' }}>
                             <FormControlLabel
                               control={
                                 <IOSSwitch
@@ -426,23 +477,8 @@ function HealthAISettings() {
                               }
                               label={values.images_enabled ? 'Images Enabled' : 'Images Disabled'}
                             />
-                            <TextField
-                              fullWidth
-                              margin="normal"
-                              type="number"
-                              label="Daily Free Image Limit"
-                              name="daily_image_limit"
-                              value={values.daily_image_limit}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={Boolean(errors.daily_image_limit && touched.daily_image_limit)}
-                              helperText={
-                                (touched.daily_image_limit && errors.daily_image_limit) ||
-                                'Set 0 to block image uploads even if enabled'
-                              }
-                            />
                           </Grid>
-                          <Grid item xs={12} md={6}>
+                          <Grid item xs={12} md={4} sx={{ display: 'flex', alignItems: 'center' }}>
                             <FormControlLabel
                               control={
                                 <IOSSwitch
@@ -454,22 +490,34 @@ function HealthAISettings() {
                               }
                               label={values.audio_enabled ? 'Audio Enabled' : 'Audio Disabled'}
                             />
-                            <TextField
-                              fullWidth
-                              margin="normal"
-                              type="number"
-                              label="Daily Free Audio Limit"
-                              name="daily_audio_limit"
-                              value={values.daily_audio_limit}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={Boolean(errors.daily_audio_limit && touched.daily_audio_limit)}
-                              helperText={
-                                (touched.daily_audio_limit && errors.daily_audio_limit) ||
-                                'Voice notes use OpenAI Whisper for transcription'
-                              }
-                            />
                           </Grid>
+                          <Grid item xs={12}>
+                            <Alert severity="info">
+                              Users with a paid AI package are never limited. Free and premium status
+                              come from the AfyaChap account APIs; an expired premium subscription is
+                              treated as free.
+                            </Alert>
+                          </Grid>
+                          <TierLimitsSection
+                            prefix="free"
+                            title="Free users"
+                            description="Limits for users on a free account."
+                            values={values}
+                            errors={errors}
+                            touched={touched}
+                            handleChange={handleChange}
+                            handleBlur={handleBlur}
+                          />
+                          <TierLimitsSection
+                            prefix="premium"
+                            title="Premium users"
+                            description="Limits for users with an active premium subscription."
+                            values={values}
+                            errors={errors}
+                            touched={touched}
+                            handleChange={handleChange}
+                            handleBlur={handleBlur}
+                          />
                           <Grid item xs={12}>
                             <TextField
                               fullWidth
