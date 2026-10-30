@@ -533,7 +533,8 @@ export const servicesProvidedFormFields = [
             { value: "PERIOD TRACKER", label: "PERIOD TRACKER" },
             { value: "TALK TO DOCTOR", label: "TALK TO DOCTOR" },
             { value: "DAKA BONASI", label: "DAKA BONASI" },
-            { value: "DATING", label: "DATING" }
+            { value: "DATING", label: "DATING" },
+            { value: "AI", label: "AI" }
         ],
     },
     { name: "service_color", type: "color", label: "Service Color" },
