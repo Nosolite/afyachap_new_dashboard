@@ -37,12 +37,26 @@ const limitPeriods = [
   { value: 'LIFETIME', label: 'Overall (never resets)' },
 ]
 
-const limitField = (label) => Yup.number().min(0, 'Minimum is 0').required(`${label} is required`)
+const formatWithCommas = (value) => {
+  if (value === '' || value === null || value === undefined) {
+    return ''
+  }
+  const number = Number(String(value).replace(/,/g, ''))
+  return Number.isFinite(number) ? number.toLocaleString('en-US') : String(value)
+}
+
+const parseCommaNumber = (input) => {
+  const digits = String(input).replace(/[^\d]/g, '')
+  return digits === '' ? '' : Number(digits)
+}
+
+const limitField = (label) => Yup.number().typeError(`${label} must be a number`).min(0, 'Minimum is 0').required(`${label} is required`)
 
 const schema = Yup.object().shape({
   provider: Yup.string().required('Provider is required'),
   model: Yup.string().required('Model is required'),
   max_context_messages: Yup.number()
+    .typeError('Max context messages must be a number')
     .min(2, 'Minimum is 2')
     .max(50, 'Maximum is 50')
     .required('Max context messages is required'),
@@ -93,17 +107,16 @@ const toFormValues = (data) => ({
   system_prompt: data.system_prompt || '',
 })
 
-function TierLimitsSection({ prefix, title, description, values, errors, touched, handleChange, handleBlur }) {
+function TierLimitsSection({ prefix, title, description, values, errors, touched, handleChange, handleBlur, setFieldValue }) {
   const fieldProps = (name, label, helperText) => ({
     fullWidth: true,
     margin: 'normal',
-    type: 'number',
     label,
     name: `${prefix}_${name}`,
-    value: values[`${prefix}_${name}`],
-    onChange: handleChange,
+    value: formatWithCommas(values[`${prefix}_${name}`]),
+    onChange: (event) => setFieldValue(`${prefix}_${name}`, parseCommaNumber(event.target.value)),
     onBlur: handleBlur,
-    inputProps: { min: 0 },
+    inputProps: { inputMode: 'numeric' },
     error: Boolean(errors[`${prefix}_${name}`] && touched[`${prefix}_${name}`]),
     helperText: (touched[`${prefix}_${name}`] && errors[`${prefix}_${name}`]) || helperText,
   })
@@ -171,7 +184,7 @@ function StatCard({ label, value, loading }) {
             <CircularProgress size={18} />
           </Box>
         ) : (
-          <Typography variant="h6">{value ?? 0}</Typography>
+          <Typography variant="h6">{formatWithCommas(value ?? 0)}</Typography>
         )}
       </CardContent>
     </Card>
@@ -450,11 +463,13 @@ function HealthAISettings() {
                             <TextField
                               fullWidth
                               margin="normal"
-                              type="number"
                               label="Max Context Messages"
                               name="max_context_messages"
-                              value={values.max_context_messages}
-                              onChange={handleChange}
+                              value={formatWithCommas(values.max_context_messages)}
+                              onChange={(event) =>
+                                setFieldValue('max_context_messages', parseCommaNumber(event.target.value))
+                              }
+                              inputProps={{ inputMode: 'numeric' }}
                               onBlur={handleBlur}
                               error={Boolean(
                                 errors.max_context_messages && touched.max_context_messages
@@ -507,6 +522,7 @@ function HealthAISettings() {
                             touched={touched}
                             handleChange={handleChange}
                             handleBlur={handleBlur}
+                            setFieldValue={setFieldValue}
                           />
                           <TierLimitsSection
                             prefix="premium"
@@ -517,6 +533,7 @@ function HealthAISettings() {
                             touched={touched}
                             handleChange={handleChange}
                             handleBlur={handleBlur}
+                            setFieldValue={setFieldValue}
                           />
                           <Grid item xs={12}>
                             <TextField
