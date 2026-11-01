@@ -1,7 +1,7 @@
 import React from 'react'
 import { Box, Button, Card, CardActions, CardContent, CardHeader, CircularProgress, Container, Divider, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material'
 import { PageHeader } from '../../components/page-header';
-import { getAllMobileConfigurationUrl, getContentSettingsUrl, updateContentSettingUrl } from '../../seed/url';
+import { getAllMobileConfigurationUrl, getContentSettingsUrl, saveMobileConfigurationUrl, updateContentSettingUrl } from '../../seed/url';
 import { authGetRequest, postRequest } from '../../services/api-service';
 import { Form, Formik } from 'formik'
 import * as Yup from "yup"
@@ -28,6 +28,8 @@ function Settings() {
   const [isSwitchLoading, setSwitchIsLoading] = React.useState(false)
   const [mobileConfiguration, setMobileConfiguration] = React.useState(settingsDefaultData);
   const [sendNotification, setSendNotification] = React.useState(false)
+  const [disableAI, setDisableAI] = React.useState(false)
+  const [isDisableAILoading, setIsDisableAILoading] = React.useState(false)
 
   const fetchMobileConfiguration = React.useCallback(
     () => {
@@ -35,6 +37,7 @@ function Settings() {
       authGetRequest(
         getAllMobileConfigurationUrl,
         (data) => {
+          setDisableAI(Boolean(data.disable_ai))
           setMobileConfiguration(
             {
               ...data,
@@ -99,6 +102,25 @@ function Settings() {
         },
       )
     }
+  }
+
+  const toggleDisableAI = () => {
+    if (isDisableAILoading) return
+    const nextValue = !disableAI
+    setIsDisableAILoading(true)
+    postRequest(
+      saveMobileConfigurationUrl,
+      { disable_ai: nextValue },
+      () => {
+        setDisableAI(nextValue)
+        setServerError("")
+        setIsDisableAILoading(false)
+      },
+      (error) => {
+        setServerError(error?.response?.data?.message || "Failed to update Disable AI")
+        setIsDisableAILoading(false)
+      },
+    )
   }
 
   React.useEffect(() => {
@@ -234,20 +256,36 @@ function Settings() {
                       {serverError}
                     </Typography>
                     {!isLoading &&
-                      <>
-                        <Typography variant='button' sx={{ mr: 2 }}>
-                          Send Notification On Publish
-                        </Typography>
-                        {isSwitchLoading ?
-                          <CircularProgress
-                            size={26}
-                          /> :
-                          <IOSSwitch
-                            checked={sendNotification}
-                            onChange={() => updateSettingstatus(38)}
-                          />
-                        }
-                      </>
+                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 2, sm: 4 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Typography variant='button' sx={{ mr: 2 }}>
+                            Send Notification On Publish
+                          </Typography>
+                          {isSwitchLoading ?
+                            <CircularProgress
+                              size={26}
+                            /> :
+                            <IOSSwitch
+                              checked={sendNotification}
+                              onChange={() => updateSettingstatus(38)}
+                            />
+                          }
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Typography variant='button' sx={{ mr: 2 }}>
+                            Disable AI
+                          </Typography>
+                          {isDisableAILoading ?
+                            <CircularProgress
+                              size={26}
+                            /> :
+                            <IOSSwitch
+                              checked={disableAI}
+                              onChange={toggleDisableAI}
+                            />
+                          }
+                        </Box>
+                      </Stack>
                     }
                   </CardContent>
                   <Divider

@@ -96,6 +96,7 @@ export const loginByEmailUrl = `${usersUrl}/api/login/user/web/by/email`;
 export const verifyPhoneUrl = `${usersUrl}/api/verify/phone`;
 export const getTopDoctorsUrl = `${usersUrl}/api/v1/get/top/doctors`;
 export const getAllMobileConfigurationUrl = `${usersUrl}/api/v1/get/all/mobile/configurations`;
+export const saveMobileConfigurationUrl = `${usersUrl}/api/v1/save/mobile/configurations`;
 export const getTotalUsersUrl = `${usersUrl}/api/v1/total/users`;
 export const getTotalMaleUsersUrl = `${usersUrl}/api/v1/total/male/users`;
 export const getTotalFemaleUsersUrl = `${usersUrl}/api/v1/total/female/users`;
